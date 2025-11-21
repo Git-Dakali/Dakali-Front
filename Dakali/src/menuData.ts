@@ -21,6 +21,11 @@ export const menuData: MenuItem[] = [
         label: "Modelo",
         pageKey: "Model",
       },
+      {
+        id: "Product",
+        label: "Producto",
+        pageKey: "Product",
+      }
     ],
   }
 ];

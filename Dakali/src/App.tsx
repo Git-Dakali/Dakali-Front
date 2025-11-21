@@ -4,13 +4,16 @@ import { MenuTreeRadix } from "./components/MenuTree";
 import { menuData } from "./menuData";
 import { CategoryPage } from "./pages/Category/CategoryPage";
 import { ModelPage } from "./pages/Model/ModelPage";
+import { ProductPage } from "./pages/Product/ProductPage";
 
 type PageKey =
+  | "Default"
   | "Category"
+  | "Product"
   | "Model";
 
 function App() {
-  const [selectedPage, setSelectedPage] = useState<PageKey>("Category");
+  const [selectedPage, setSelectedPage] = useState<PageKey>("Default");
 
   const renderPage = () => {
     switch (selectedPage) {
@@ -18,6 +21,8 @@ function App() {
         return <CategoryPage></CategoryPage>;
       case "Model":
         return <ModelPage></ModelPage>;
+      case "Product":
+        return <ProductPage></ProductPage>;
       default:
         return <Text>Selecciona una opción del menú.</Text>;
     }
