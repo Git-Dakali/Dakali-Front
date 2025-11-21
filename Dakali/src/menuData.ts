@@ -1,0 +1,26 @@
+// src/menuData.ts
+export type MenuItem = {
+  id: string;
+  label: string;
+  pageKey?: string;      // identificador de "página" interna
+  children?: MenuItem[];
+};
+
+export const menuData: MenuItem[] = [
+  {
+    id: "product",
+    label: "Configuracion",
+    children: [
+      {
+        id: "Category",
+        label: "Categoria",
+        pageKey: "Category",
+      },
+      {
+        id: "Model",
+        label: "Modelo",
+        pageKey: "Model",
+      },
+    ],
+  }
+];

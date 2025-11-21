@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import { Box, Flex, Text, ScrollArea } from "@radix-ui/themes";
+import { MenuTreeRadix } from "./components/MenuTree";
+import { menuData } from "./menuData";
+import { CategoryPage } from "./pages/Category/CategoryPage";
+import { ModelPage } from "./pages/Model/ModelPage";
+
+type PageKey =
+  | "Category"
+  | "Model";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedPage, setSelectedPage] = useState<PageKey>("Category");
+
+  const renderPage = () => {
+    switch (selectedPage) {
+      case "Category":
+        return <CategoryPage></CategoryPage>;
+      case "Model":
+        return <ModelPage></ModelPage>;
+      default:
+        return <Text>Selecciona una opción del menú.</Text>;
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Flex height="100vh">
+      <Box
+        width="260px"
+        p="3"
+        style={{ borderRight: "1px solid var(--gray-a5)" }}
+      >
+        <Text size="3" weight="bold" mb="3">
+          Dakali
+        </Text>
+
+        <ScrollArea
+          type="auto"
+          scrollbars="vertical"
+          style={{ height: "calc(100vh - 80px)" }}
+        >
+          <MenuTreeRadix
+            items={menuData}
+            selectedPage={selectedPage}
+            onSelectPage={(key) => setSelectedPage(key as PageKey)}
+          />
+        </ScrollArea>
+      </Box>
+
+      <Box flexGrow="1" p="4">
+        {renderPage()}
+      </Box>
+    </Flex>
+  );
 }
 
 export default App
