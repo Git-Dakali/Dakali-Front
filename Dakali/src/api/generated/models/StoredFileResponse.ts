@@ -2,9 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type StoredFileResponse = {
-    id: number;
+import type { ResponseGuid } from './ResponseGuid';
+export type StoredFileResponse = (ResponseGuid & {
     fileName: string;
     module: string;
-};
+    contentBase64: string;
+});
 

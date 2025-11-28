@@ -3,10 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { FieldResponse } from './FieldResponse';
-export type FieldGroupResponse = {
-    id: number;
+import type { ResponseGuid } from './ResponseGuid';
+export type FieldGroupResponse = (ResponseGuid & {
     name: string;
     sortOrder: number;
     fields: Array<FieldResponse>;
-};
+});
 

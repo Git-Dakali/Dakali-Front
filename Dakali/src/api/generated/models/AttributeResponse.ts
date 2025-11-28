@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type AttributeResponse = {
-    id: number;
+import type { ResponseGuid } from './ResponseGuid';
+export type AttributeResponse = (ResponseGuid & {
     field: string;
     value: string;
-};
+});
 

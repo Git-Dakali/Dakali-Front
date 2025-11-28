@@ -2,8 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { RequestCode } from './RequestCode';
-export type CategoryRequest = (RequestCode & {
-    name: string;
-});
+export type RequestGuid = {
+    id: number;
+    guid: string;
+    searchString: string;
+};
 

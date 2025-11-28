@@ -2,10 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type ColorRequest = {
-    id: number;
+import type { ImageRequest } from './ImageRequest';
+import type { RequestGuid } from './RequestGuid';
+export type ColorRequest = (RequestGuid & {
     name: string;
     hex: string;
     sortOrder: number;
-};
+    images: Array<ImageRequest>;
+});
 

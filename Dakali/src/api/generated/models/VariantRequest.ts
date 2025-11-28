@@ -2,15 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { AttributeRequest } from './AttributeRequest';
+import type { AttributeGroupRequest } from './AttributeGroupRequest';
 import type { ColorRequest } from './ColorRequest';
-import type { ImageRequest } from './ImageRequest';
-export type VariantRequest = {
-    id: number;
-    size: string;
-    cost: number;
+import type { RequestGuid } from './RequestGuid';
+export type VariantRequest = (RequestGuid & {
+    name: string;
+    price: number;
+    salePrice: number;
+    active: boolean;
     colorsHex: Array<ColorRequest>;
-    images: Array<ImageRequest>;
-    attributes: Array<AttributeRequest>;
-};
+    attributeGroups: Array<AttributeGroupRequest>;
+});
 

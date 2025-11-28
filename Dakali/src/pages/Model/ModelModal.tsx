@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Select, Tabs, Tooltip, Table } from "@radix-ui/themes";
-import { type CategoryResponse, type FieldGroupRequest, type FieldGroupResponse, type ModelRequest, type ModelResponse, type SizeRequest, type SizeResponse, CategoryService, ModelService } from "../../api/generated";
+import { type CategoryRequest, type CategoryResponse, type FieldGroupRequest, type FieldGroupResponse, type ModelRequest, type ModelResponse, type SizeRequest, type SizeResponse, CategoryService, ModelService } from "../../api/generated";
 import { Pencil1Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { SizeModal } from "./SizeModal";
 import { FieldGroupModal } from "./FieldGroupModal";
@@ -49,7 +49,16 @@ export const ModelModal : React.FC<ModelModalProps> = ({
 
   const handleSubmit = () => {
     const category = categories.find(c => c.code === selectedCategoryCode)?? null;
-    onSave({id: modelPersisted?.id??0, code: code, category: {id: category?.id ?? 0, code: category?.code ?? "", name: category?.name ?? "" }, fieldGroups: fieldGroups, sizes: sizes});
+    const modelRequest = {} as ModelRequest;
+    modelRequest.id = modelPersisted?.id ?? 0;
+    modelRequest.guid = crypto.randomUUID();
+    modelRequest.code = code;
+    modelRequest.searchString = "";
+    modelRequest.category = category as CategoryRequest;
+    modelRequest.fieldGroups = fieldGroups as FieldGroupRequest[];
+    modelRequest.sizes = sizes as SizeRequest[];
+
+    onSave(modelRequest);
   };
 
   const CreateSizeEvent =  () =>{
@@ -58,7 +67,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
   };
 
   const DeleteSizeEvent = (size:SizeResponse) =>{
-    setSizes(sizes.filter(x => x.name.toUpperCase() !== size.name.toUpperCase()));
+    setSizes(sizes.filter(x => x.guid !== size.guid));
   };
 
   const EditSizeEvent = (size:SizeResponse) =>{
@@ -67,11 +76,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
   };
 
   const SaveSizeService = (sizeRequest: SizeRequest) => {
-      let value: SizeResponse | null = null;
-      if(sizeRequest.id === 0 || sizeRequest.id === undefined )
-        value = sizes.find(x => x.name.toUpperCase() === sizeRequest.name.toUpperCase()) ?? null;
-      else 
-        value = sizes.find(x => x.id === sizeRequest.id) ?? null;
+      const value = sizes.find(x => x.guid === sizeRequest.guid) ?? null;
 
       if(value === null)
       {
@@ -93,7 +98,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
   };
 
   const DeleteFieldGroupEvent = (group:FieldGroupResponse) =>{
-    setFieldGroups(fieldGroups.filter(x => x.name.toUpperCase() !== group.name.toUpperCase()));
+    setFieldGroups(fieldGroups.filter(x => x.guid !== group.guid));
   };
   
   const EditFieldGroupEvent = (group:FieldGroupResponse) =>{
@@ -102,7 +107,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
   };
 
   const SaveFieldGroupService = (groupRequest: FieldGroupRequest) => {
-      const value = fieldGroups.find(x => x.name.toUpperCase() === groupRequest.name.toUpperCase())??null;
+      const value = fieldGroups.find(x => x.guid === groupRequest.guid) ?? null;
 
       if(value === null)
       {

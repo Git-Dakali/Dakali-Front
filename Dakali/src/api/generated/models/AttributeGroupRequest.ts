@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { FieldRequest } from './FieldRequest';
+import type { AttributeRequest } from './AttributeRequest';
 import type { RequestGuid } from './RequestGuid';
-export type FieldGroupRequest = (RequestGuid & {
+export type AttributeGroupRequest = (RequestGuid & {
     name: string;
     sortOrder: number;
-    fields: Array<FieldRequest>;
+    attributes: Array<AttributeRequest>;
 });
 

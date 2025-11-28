@@ -2,10 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type ColorResponse = {
-    id: number;
+import type { ImageResponse } from './ImageResponse';
+import type { ResponseGuid } from './ResponseGuid';
+export type ColorResponse = (ResponseGuid & {
     name: string;
     hex: string;
     sortOrder: number;
-};
+    images: Array<ImageResponse>;
+});
 

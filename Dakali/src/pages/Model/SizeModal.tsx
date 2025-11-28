@@ -19,7 +19,7 @@ export const SizeModal: React.FC<SizeModalProps> = ({
   const [sortOrder, setSortOrder] = useState(size?.sortOrder ?? 0);
 
   const handleSubmit = () => {
-    onSave({ id: size?.id ?? 0, name, sortOrder });
+    onSave({ id: size?.id ?? 0, guid: size?.guid ?? crypto.randomUUID(), name, sortOrder, searchString: ""});
     onOpenChange(false);
   };
 

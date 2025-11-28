@@ -19,7 +19,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
   const [sortOrder, setSortOrder] = useState(field?.sortOrder ?? 0);
 
   const handleSubmit = () => {
-    onSave({ id: field?.id ?? 0, name, sortOrder });
+    onSave({ id: field?.id ?? 0, guid: field?.guid ?? crypto.randomUUID(), name, sortOrder, searchString: "" });
     onOpenChange(false);
   };
 

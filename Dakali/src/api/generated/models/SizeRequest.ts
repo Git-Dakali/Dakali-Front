@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type SizeRequest = {
-    id: number;
+import type { RequestGuid } from './RequestGuid';
+export type SizeRequest = (RequestGuid & {
     name: string;
     sortOrder: number;
-};
+});
 

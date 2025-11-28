@@ -3,11 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ModelRequest } from './ModelRequest';
+import type { RequestGuid } from './RequestGuid';
 import type { VariantRequest } from './VariantRequest';
-export type ProductRequest = {
+export type ProductRequest = (RequestGuid & {
     name: string;
     description: string;
     model: ModelRequest;
     variants: Array<VariantRequest>;
-};
+});
 

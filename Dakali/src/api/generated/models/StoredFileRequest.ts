@@ -2,9 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type StoredFileRequest = {
-    id: number;
+import type { RequestGuid } from './RequestGuid';
+export type StoredFileRequest = (RequestGuid & {
     fileName: string;
     module: string;
-};
+    contentBase64: string;
+});
 

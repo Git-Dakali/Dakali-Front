@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type SizeResponse = {
-    id: number;
+import type { ResponseGuid } from './ResponseGuid';
+export type SizeResponse = (ResponseGuid & {
     name: string;
     sortOrder: number;
-};
+});
 

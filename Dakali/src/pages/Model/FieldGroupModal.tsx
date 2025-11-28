@@ -24,7 +24,7 @@ export const FieldGroupModal: React.FC<FieldGroupModalProps> = ({
   const [selectedField, setSelectedField] = useState<FieldResponse | null>(null);
 
   const handleSubmit = () => {
-    onSave({ id: fieldGroup?.id ?? 0, name, sortOrder, fields });
+    onSave({ id: fieldGroup?.id ?? 0, guid: fieldGroup?.guid ?? crypto.randomUUID(), name, sortOrder, fields: fields as FieldRequest[], searchString: "" });
     onOpenChange(false);
     setFields([]);
   };
@@ -35,7 +35,7 @@ export const FieldGroupModal: React.FC<FieldGroupModalProps> = ({
     };
   
     const DeleteFieldEvent = (field:FieldResponse) =>{
-      setFields(fields.filter(x => x.name.toUpperCase() !== field.name.toUpperCase()));
+      setFields(fields.filter(x => x.guid !== field.guid));
     };
   
     const EditFieldEvent = (field:FieldResponse) =>{
@@ -44,7 +44,7 @@ export const FieldGroupModal: React.FC<FieldGroupModalProps> = ({
     };
   
     const SaveFieldService = (fieldRequest: FieldRequest) => {
-        const value = fields.find(x => x.name.toUpperCase() === fieldRequest.name.toUpperCase())??null;
+        const value = fields.find(x => x.guid === fieldRequest.guid)??null;
   
         if(value === null)
         {

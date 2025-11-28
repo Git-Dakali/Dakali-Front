@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type AttributeRequest = {
-    id: number;
+import type { RequestGuid } from './RequestGuid';
+export type AttributeRequest = (RequestGuid & {
     field: string;
     value: string;
-};
+});
 

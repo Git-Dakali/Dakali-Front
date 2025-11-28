@@ -19,7 +19,7 @@ export const CategoryPage: React.FC = () => {
     CategoryService.categoryGetAll().then(data => {setCategories(data)});
   }, [refreshCategories]);
 
-  const DeleteEvent = (category:CategoryResponse) =>{
+  const DeleteEvent = (category:CategoryRequest) =>{
     CategoryService.categoryDelete(category).then(()=>{ setRefreshCategories(!refreshCategories); });
   };
 
@@ -83,7 +83,7 @@ export const CategoryPage: React.FC = () => {
                         <Table.Cell>{category.name}</Table.Cell>
                         <Table.Cell>
                           <Tooltip content="Editar"><Button onClick={() => { EditEvent(category);}}><Pencil1Icon/></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(category);}} color="red"><TrashIcon/></Button></Tooltip>
+                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(category as CategoryRequest);}} color="red"><TrashIcon/></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
                     );

@@ -2,9 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type CategoryResponse = {
-    id: number;
-    code: string;
+import type { ResponseCode } from './ResponseCode';
+export type CategoryResponse = (ResponseCode & {
     name: string;
-};
+});
 

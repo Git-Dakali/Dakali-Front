@@ -20,7 +20,7 @@ export const ModelPage: React.FC = () => {
   }, [refreshModels]);
 
   const DeleteEvent = (model:ModelResponse) =>{
-    ModelService.modelDelete(model).then(()=>{ setRefreshModels(!refreshModels); });
+    ModelService.modelDelete(model as ModelRequest).then(()=>{ setRefreshModels(!refreshModels); });
   };
 
   const CreateEvent =  () =>{

@@ -20,7 +20,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
   const [name, setName] = useState(category?.name ?? "");
 
   const handleSubmit = () => {
-    onSave({ id: category?.id ?? 0, code, name });
+    onSave({ id: category?.id ?? 0, guid: crypto.randomUUID(), code, name, searchString: "" });
     onOpenChange(false);
   };
 

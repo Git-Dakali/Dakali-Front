@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type FieldRequest = {
-    id: number;
+import type { RequestGuid } from './RequestGuid';
+export type FieldRequest = (RequestGuid & {
     name: string;
     sortOrder: number;
-};
+});
 

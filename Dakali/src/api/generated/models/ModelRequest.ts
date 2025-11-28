@@ -4,12 +4,11 @@
 /* eslint-disable */
 import type { CategoryRequest } from './CategoryRequest';
 import type { FieldGroupRequest } from './FieldGroupRequest';
+import type { RequestCode } from './RequestCode';
 import type { SizeRequest } from './SizeRequest';
-export type ModelRequest = {
-    id: number;
-    code: string;
+export type ModelRequest = (RequestCode & {
     category: CategoryRequest;
     fieldGroups: Array<FieldGroupRequest>;
     sizes: Array<SizeRequest>;
-};
+});
 
