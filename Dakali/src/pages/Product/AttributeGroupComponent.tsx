@@ -52,7 +52,7 @@ export const AttributeGroupComponent: React.FC<AttributeGroupComponentProps> = (
             <Grid columns="1fr 1fr 1fr 1fr" gap="1" rows="1fr" width="100%">
                 {attributes.map((a) => {
                     return (
-                        <Box>
+                        <Box key={a.guid}>
                             <Text size="2" mb="1" style={{ display: "block" }}>{a.field}</Text>
                             <TextField.Root value={a.value} onChange={(e) => changeValue(a, e.target.value)}/>
                         </Box>

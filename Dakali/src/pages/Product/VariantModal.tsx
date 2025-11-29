@@ -149,7 +149,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
               </Text>
             </Box>
             <Box gridColumn={"span 4"}>
-              <Tabs.Root defaultValue="Attribute">
+              <Tabs.Root defaultValue="Attributes">
               <Tabs.List>
                   <Tabs.Trigger value="Attributes">Caracteristicas</Tabs.Trigger>
                   <Tabs.Trigger value="Colors">Colores</Tabs.Trigger>
