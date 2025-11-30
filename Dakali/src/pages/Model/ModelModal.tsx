@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Select, Tabs, Tooltip, Table } from "@radix-ui/themes";
-import { type CategoryRequest, type CategoryResponse, type FieldGroupRequest, type FieldGroupResponse, type ModelRequest, type ModelResponse, type SizeRequest, type SizeResponse, CategoryService, ModelService } from "../../api/generated";
+import { type CategoryRequest, type CategoryResponse, type FieldGroupRequest, type FieldGroupResponse, type ModelRequest, type ModelResponse, CategoryService, ModelService } from "../../api/generated";
 import { Pencil1Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
-import { SizeModal } from "./SizeModal";
 import { FieldGroupModal } from "./FieldGroupModal";
 
 type ModelModalProps = {
@@ -22,9 +21,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
   const [code, setCode] = useState(modelPersisted?.code ?? "");
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   
-  const [sizes, setSizes] = useState<SizeResponse[]>(modelPersisted?.sizes ?? []);
-  const [isModalSizeOpen, setIsModalSizeOpen] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<SizeResponse | null>(null);
+  const [names, setNames] = useState<string[]>(modelPersisted?.variantNames ?? []);
   const [selectedCategoryCode, setSelectedCategoryCode] = useState<string>(modelPersisted?.category.code??"");
 
   const [fieldGroups, setFieldGroups] = useState<FieldGroupResponse[]>(modelPersisted?.fieldGroups ?? []);
@@ -39,7 +36,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
       {
         ModelService.modelGet(model?.id).then((data) =>{
           setModelPersisted(data);
-          setSizes(data.sizes);
+          setNames(data.variantNames);
           setFieldGroups(data.fieldGroups);
           setSelectedCategoryCode(data.category.code);
         });
@@ -56,41 +53,32 @@ export const ModelModal : React.FC<ModelModalProps> = ({
     modelRequest.searchString = "";
     modelRequest.category = category as CategoryRequest;
     modelRequest.fieldGroups = fieldGroups as FieldGroupRequest[];
-    modelRequest.sizes = sizes as SizeRequest[];
+    modelRequest.variantNames = names;
 
     onSave(modelRequest);
   };
 
-  const CreateSizeEvent =  () =>{
-    setSelectedSize(null);
-    setIsModalSizeOpen(true);
+  const CreateVariantNameEvent =  () =>{
+    const newNames = ["Name #"+ names.length];
+
+    setNames(newNames.concat(names))
   };
 
-  const DeleteSizeEvent = (size:SizeResponse) =>{
-    setSizes(sizes.filter(x => x.guid !== size.guid));
+  const DeleteVariantNameEvent = (name:string) =>{
+    setNames(names.filter(x => x.toUpperCase() !== name.toUpperCase()));
   };
 
-  const EditSizeEvent = (size:SizeResponse) =>{
-    setSelectedSize(size);
-    setIsModalSizeOpen(true);
+  const ChangeVariantNameEvent = (name: string, newName: string) =>{
+    const newNames = names.filter(() => true);
+    const indexName = names.indexOf(name); 
+
+    if (indexName !== -1) 
+      newNames[indexName] = newName;
+
+    setNames(newNames);
   };
 
-  const SaveSizeService = (sizeRequest: SizeRequest) => {
-      const value = sizes.find(x => x.guid === sizeRequest.guid) ?? null;
-
-      if(value === null)
-      {
-        sizes.push(sizeRequest);
-        setSizes(sizes);
-      }
-      else{
-        value.id = sizeRequest.id;
-        value.name = sizeRequest.name;
-        value.sortOrder = sizeRequest.sortOrder;
-
-        setSizes(sizes);
-      }
-  };
+  
 
   const CreateGroupFieldsEvent =  () =>{
     setSelectedFieldGroup(null);
@@ -154,36 +142,33 @@ export const ModelModal : React.FC<ModelModalProps> = ({
               </Select.Root>
             </Box>
             <Box gridColumn={"span 2"}>
-              <Tabs.Root defaultValue="Size">
+              <Tabs.Root defaultValue="VariantNames">
                 <Tabs.List>
-                  <Tabs.Trigger value="Size">Variantes</Tabs.Trigger>
+                  <Tabs.Trigger value="VariantNames">Variantes</Tabs.Trigger>
                   <Tabs.Trigger value="Information">Caracteristicas</Tabs.Trigger>
                 </Tabs.List>
 
                 <Box pt="3">
-                  <Tabs.Content value="Size">
+                  <Tabs.Content value="VariantNames">
                     <Grid rows="auto 1fr" columns="1" height={"100%"} gap={"2"}>
                         <Flex justify={"end"}>
-                            <Tooltip content="Crear"><Button onClick={CreateSizeEvent}><PlusCircledIcon/></Button></Tooltip>
+                            <Tooltip content="Crear"><Button onClick={CreateVariantNameEvent}><PlusCircledIcon/></Button></Tooltip>
                         </Flex>
                         <Box>
                             <Table.Root variant="surface">
                                 <Table.Header>
                                 <Table.Row>
-                                    <Table.ColumnHeaderCell width={"75%"}>Name</Table.ColumnHeaderCell>
-                                    <Table.ColumnHeaderCell width={"10%"}>Orden</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"85%"}>Name</Table.ColumnHeaderCell>
                                     <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                                 </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                {sizes.map(size => {
+                                {names.map((name, index) => {
                                     return (
-                                    <Table.Row key={size.name}>
-                                        <Table.Cell>{size.name}</Table.Cell>
-                                        <Table.Cell>{size.sortOrder}</Table.Cell>
+                                    <Table.Row key={index}>
+                                        <Table.Cell><TextField.Root value={name} onChange={(e) => ChangeVariantNameEvent(name, e.target.value)}/></Table.Cell>
                                         <Table.Cell>
-                                            <Tooltip content="Editar"><Button onClick={() => { EditSizeEvent(size);}}><Pencil1Icon/></Button></Tooltip>
-                                            <Tooltip content="Eliminar"><Button onClick={() => { DeleteSizeEvent(size);}} color="red"><TrashIcon/></Button></Tooltip>
+                                            <Tooltip content="Eliminar"><Button onClick={() => { DeleteVariantNameEvent(name);}} color="red"><TrashIcon/></Button></Tooltip>
                                         </Table.Cell>
                                     </Table.Row>
                                     );
@@ -236,16 +221,6 @@ export const ModelModal : React.FC<ModelModalProps> = ({
           </Grid>
         </Dialog.Content>
       </Dialog.Root>
-      {isModalSizeOpen && (
-        <SizeModal
-          key={selectedSize?.id ?? "new"}  
-          open={isModalSizeOpen}
-          onOpenChange={setIsModalSizeOpen}
-          size={selectedSize}
-          onSave={SaveSizeService}
-        />
-      )}
-
       {isModalFieldGroupsOpen && (
         <FieldGroupModal
           key={selectedFieldGroup?.id ?? "new"}  

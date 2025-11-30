@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { AttributeRequest } from './AttributeRequest';
+import type { PropertyResponse } from './PropertyResponse';
 import type { RequestGuid } from './RequestGuid';
-export type AttributeGroupRequest = (RequestGuid & {
+export type PropertyGroupResponse = (RequestGuid & {
     name: string;
     sortOrder: number;
-    attributes: Array<AttributeRequest>;
+    properties: Array<PropertyResponse>;
 });
 

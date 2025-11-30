@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Dialog, Button, Flex, Box, Grid, Checkbox, Tooltip, Table } from "@radix-ui/themes";
+import { Dialog, Button, Flex, Box, Grid, Checkbox, Tooltip, Table, TextField } from "@radix-ui/themes";
 import type { ImageRequest, ImageResponse } from "../../api/generated";
 import { TrashIcon, FilePlusIcon } from "@radix-ui/react-icons";
 
@@ -28,6 +28,12 @@ export const ImageModal: React.FC<ImageModalProps> = ({
 
   const changeIsPrimaryImageEvent = (image: ImageResponse) => {
     image.isPrimary = !image.isPrimary;
+
+    setImages(images.filter(()=> true));
+  };
+
+  const changeSortOrderEvent = (image: ImageResponse, sortOrder: number) => {
+    image.sortOrder = sortOrder;
 
     setImages(images.filter(()=> true));
   };
@@ -114,8 +120,9 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                 <Table.Root variant="surface" size={"1"}>
                     <Table.Header>
                     <Table.Row>
-                        <Table.ColumnHeaderCell width={"55%"}>Nombre Archivo</Table.ColumnHeaderCell>
-                        <Table.ColumnHeaderCell width={"15%"}>Principal</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell width={"45%"}>Nombre Archivo</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell width={"15%"}>Orden</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell width={"10%"}>Principal</Table.ColumnHeaderCell>
                         <Table.ColumnHeaderCell width={"15%"}>Imagen</Table.ColumnHeaderCell>
                         <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                     </Table.Row>
@@ -123,8 +130,9 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                     <Table.Body>
                     {images.map(image => {
                         return (
-                        <Table.Row key={image.file.fileName}>
+                        <Table.Row key={image.guid}>
                             <Table.Cell>{image.file.fileName}</Table.Cell>
+                            <Table.Cell><TextField.Root value={image.sortOrder} onChange={(e) => changeSortOrderEvent(image, Number.parseInt(e.target.value))}/></Table.Cell>
                             <Table.Cell><Checkbox defaultChecked checked={image.isPrimary} onCheckedChange={() => changeIsPrimaryImageEvent(image)} /></Table.Cell>
                             <Table.Cell><img src={image.file.contentBase64} alt={image.file.fileName} style={{ height: "45px" }}/></Table.Cell>
                             <Table.Cell><Tooltip content="Eliminar"><Button onClick={() => { deleteImageEvent(image);}} color="red"><TrashIcon/></Button></Tooltip></Table.Cell>

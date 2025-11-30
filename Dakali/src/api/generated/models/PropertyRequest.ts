@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { RequestGuid } from './RequestGuid';
-export type SizeRequest = (RequestGuid & {
-    name: string;
-    sortOrder: number;
+export type PropertyRequest = (RequestGuid & {
+    field: string;
+    value: string;
 });
 

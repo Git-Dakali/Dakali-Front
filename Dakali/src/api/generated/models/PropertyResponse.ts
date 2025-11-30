@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ResponseGuid } from './ResponseGuid';
-export type AttributeResponse = (ResponseGuid & {
+export type PropertyResponse = (ResponseGuid & {
     field: string;
     value: string;
 });

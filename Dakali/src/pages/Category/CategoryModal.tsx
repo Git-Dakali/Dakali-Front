@@ -15,7 +15,6 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
   category,
   onSave,
 }) => {
-  // 👉 Inicializamos estado con los valores de la categoría
   const [code, setCode] = useState(category?.code ?? "");
   const [name, setName] = useState(category?.name ?? "");
 

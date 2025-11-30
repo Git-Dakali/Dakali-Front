@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Checkbox, Tabs, Tooltip, Table } from "@radix-ui/themes";
-import type { AttributeGroupRequest, AttributeGroupResponse, AttributeResponse, ColorRequest, ColorResponse, ImageResponse, ModelResponse, VariantRequest, VariantResponse } from "../../api/generated";
+import type { ColorRequest, ColorResponse, ImageResponse, ModelResponse, PropertyGroupRequest, PropertyGroupResponse, PropertyResponse, VariantRequest, VariantResponse } from "../../api/generated";
 import { TrashIcon, PlusCircledIcon, FileIcon } from "@radix-ui/react-icons";
-import { AttributeGroupComponent } from "./AttributeGroupComponent";
+import { PropertyGroupComponent } from "./PropertyGroupComponent";
 import { ImageModal } from "./ImageModal";
 
 type VariantModalProps = {
@@ -24,32 +24,33 @@ export const VariantModal: React.FC<VariantModalProps> = ({
   const [price, setPrice] = useState(variant?.price ?? 0);
   const [salePrice, setSalePrice] = useState(variant?.salePrice ?? 0);
   const [active, setActive] = useState(variant?.active ?? false);
+  const [sortOrder, setSortOrder] = useState(variant?.sortOrder ?? 0);
 
   const [colors, setColors] = useState(variant?.colorsHex ?? []);
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState({} as ColorResponse);
 
-  const groups = useMemo<AttributeGroupResponse[]>(() => {
-      const listGroupAdd:AttributeGroupResponse[] = [];
+  const groups = useMemo<PropertyGroupResponse[]>(() => {
+      const listGroupAdd:PropertyGroupResponse[] = [];
 
       model?.fieldGroups?.forEach((fieldGroup) => {
-          const existAttributeGroup = variant.attributeGroups?.some(group => group.name.toUpperCase() === fieldGroup.name.toUpperCase())
+          const existPropertyGroup = variant.propertyGroups?.some(group => group.name.toUpperCase() === fieldGroup.name.toUpperCase())
   
-          if(!existAttributeGroup)
+          if(!existPropertyGroup)
           {
             const properties = fieldGroup.fields.map(f => {
-              return {id: 0, guid: crypto.randomUUID(), field: f.name, value: "", searchString: ""} as AttributeResponse;
+              return {id: 0, guid: crypto.randomUUID(), field: f.name, value: "", searchString: ""} as PropertyResponse;
             });
 
-            listGroupAdd.push({ id: 0, guid: crypto.randomUUID(), name: fieldGroup.name, sortOrder: 0, searchString: "", attributes: properties });
+            listGroupAdd.push({ id: 0, guid: crypto.randomUUID(), name: fieldGroup.name, sortOrder: 0, searchString: "", properties: properties });
           }
       });
   
-      return listGroupAdd.concat(variant.attributeGroups);
-  }, [model, variant.attributeGroups]);
+      return listGroupAdd.concat(variant.propertyGroups);
+  }, [model, variant.propertyGroups]);
 
   const handleSubmit = () => {
-    onSave({ id: variant.id, guid: variant?.guid, name, price, salePrice, active, searchString: "", attributeGroups: groups as AttributeGroupRequest[], colorsHex: colors as ColorRequest[]});
+    onSave({ id: variant.id, guid: variant?.guid, name, price, salePrice, active, sortOrder, searchString: "", propertyGroups: groups as PropertyGroupRequest[], colorsHex: colors as ColorRequest[]});
     onOpenChange(false);
   };
 
@@ -104,13 +105,13 @@ export const VariantModal: React.FC<VariantModalProps> = ({
     setColors(newsColors);
   };
 
-  const changeAttributeGroup = (group: AttributeGroupResponse) =>{
+  const changePropertyGroup = (group: PropertyGroupResponse) =>{
     const findGroup = groups.find(g => g.name.toUpperCase() === group.name.toUpperCase())?? null;
 
     if(findGroup === null)
       return;
 
-    findGroup.attributes = group.attributes;
+    findGroup.properties = group.properties;
   }
 
   return (
@@ -119,7 +120,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
         <Dialog.Content minWidth="70%" onInteractOutside={(e) => e.preventDefault()}>
           <Dialog.Title>Modificar Variante</Dialog.Title>
 
-          <Grid columns="3fr 1fr 1fr 1fr" gap="3" rows="auto auto 1fr auto" width="100%">
+          <Grid columns="3fr 1fr 1fr 1fr 1fr" gap="3" rows="auto auto 1fr auto" width="100%">
             <Box>
               <Text size="2" mb="1" style={{ display: "block" }}>Nombre</Text>
               <TextField.Root value={name} onChange={(e) => setName(e.target.value)} disabled/>
@@ -140,6 +141,14 @@ export const VariantModal: React.FC<VariantModalProps> = ({
                 required
               />
             </Box>
+            <Box>
+              <Text size="2" mb="1" style={{ display: "block" }}>Orden</Text>
+              <TextField.Root
+                value={sortOrder}
+                onChange={(e) => setSortOrder(Number.parseFloat(e.target.value))}
+                required
+              />
+            </Box>
             <Box style={{alignContent: "center"}}>
               <Text size="2" mb="1" style={{ display: "block" }}>
                   <Flex gap="2">
@@ -148,21 +157,21 @@ export const VariantModal: React.FC<VariantModalProps> = ({
                   </Flex>
               </Text>
             </Box>
-            <Box gridColumn={"span 4"}>
-              <Tabs.Root defaultValue="Attributes">
+            <Box gridColumn={"span 5"}>
+              <Tabs.Root defaultValue="Properties">
               <Tabs.List>
-                  <Tabs.Trigger value="Attributes">Caracteristicas</Tabs.Trigger>
+                  <Tabs.Trigger value="Properties">Caracteristicas</Tabs.Trigger>
                   <Tabs.Trigger value="Colors">Colores</Tabs.Trigger>
               </Tabs.List>
 
               <Box pt="3">
-                  <Tabs.Content value="Attributes">
+                  <Tabs.Content value="Properties">
                       <Grid rows="1fr" columns="1" width={"100%"} gap={"2"}>
                           <Box>
                               {
                                 groups.map(g=> {
                                   const findFieldGroup = model?.fieldGroups.find(fg => fg.name.toUpperCase() === g.name.toUpperCase());
-                                  return(<AttributeGroupComponent key={g.guid} attributeGroup={g} fieldGroup={findFieldGroup ?? null} onChange={changeAttributeGroup}></AttributeGroupComponent>);
+                                  return(<PropertyGroupComponent key={g.guid} propertyGroup={g} fieldGroup={findFieldGroup ?? null} onChange={changePropertyGroup}></PropertyGroupComponent>);
                                 })
                               }
                           </Box>
@@ -205,7 +214,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
               </Box>
               </Tabs.Root>
             </Box>
-            <Flex justify="end" gap="2" mt="3" gridColumn={"span 4"}>
+            <Flex justify="end" gap="2" mt="3" gridColumn={"span 5"}>
               <Dialog.Close><Button color="gray">Cancelar</Button></Dialog.Close>
               <Button onClick={handleSubmit}>Guardar</Button>
             </Flex>

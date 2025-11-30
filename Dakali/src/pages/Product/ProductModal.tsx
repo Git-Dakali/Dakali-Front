@@ -49,7 +49,7 @@ export const ProductModal : React.FC<ProductModalProps> = ({
     const model = models.find(c => c.code === selectedModelCode) ?? null; 
     
     productPersisted?.variants.forEach((variant) => {
-        const existVariant = model?.sizes.some(s => s.name.toUpperCase() === variant.name.toUpperCase())
+        const existVariant = model?.variantNames.some(name => name.toUpperCase() === variant.name.toUpperCase())
 
         if(!existVariant)
             listVariantDelete.push(variant);
@@ -63,11 +63,11 @@ const variants = useMemo<VariantResponse[]>(() => {
 
     const model = models.find(c => c.code === selectedModelCode) ?? null; 
     
-    model?.sizes?.forEach((size) => {
-        const existVariant = productPersisted?.variants.some( variant => variant.name.toUpperCase() === size.name.toUpperCase())
+    model?.variantNames?.forEach((name) => {
+        const existVariant = productPersisted?.variants.some( variant => variant.name.toUpperCase() === name.toUpperCase())
 
         if(!existVariant)
-            listVariantAdd.push({id:0, guid: crypto.randomUUID(), searchString: "", name: size.name, price: 0, salePrice: 0, active: true, attributeGroups: [], colorsHex: []});
+            listVariantAdd.push({id:0, guid: crypto.randomUUID(), searchString: "", name, price: 0, salePrice: 0, active: true, sortOrder: 0, propertyGroups: [], colorsHex: []});
     });
 
     return listVariantAdd.concat(productPersisted?.variants?? []);
@@ -102,7 +102,8 @@ const handleSubmit = () => {
         value.price = variantRequest.price;
         value.salePrice = variantRequest.salePrice;
         value.colorsHex = variantRequest.colorsHex;
-        value.attributeGroups = variantRequest.attributeGroups;
+        value.propertyGroups = variantRequest.propertyGroups;
+        value.sortOrder = variantRequest.sortOrder;
       }
   };
 
@@ -141,10 +142,11 @@ const handleSubmit = () => {
                         <Table.Root variant="surface">
                             <Table.Header>
                             <Table.Row>
-                                <Table.ColumnHeaderCell width={"40%"}>Variante</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"20%"}>Precio</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"20%"}>Precio Venta</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"20%"}>Estado</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell width={"30%"}>Variante</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell width={"15%"}>Precio</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell width={"15%"}>Precio Venta</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell width={"10%"}>Orden</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell width={"10%"}>Estado</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell width={"20%"}>Acciones</Table.ColumnHeaderCell>
                             </Table.Row>
                             </Table.Header>
@@ -160,6 +162,7 @@ const handleSubmit = () => {
                                     <Table.Cell>{variant.name}</Table.Cell>
                                     <Table.Cell>{variant.price}</Table.Cell>
                                     <Table.Cell>{variant.salePrice}</Table.Cell>
+                                    <Table.Cell>{variant.sortOrder}</Table.Cell>
                                     <Table.Cell>{isDeleted ? "Se eliminara" : (variant.id === 0 ? "Se agregara" : "")}
                                     </Table.Cell>
                                     <Table.Cell>
