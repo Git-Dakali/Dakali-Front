@@ -2,33 +2,33 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ModelRequest } from '../models/ModelRequest';
-import type { ModelResponse } from '../models/ModelResponse';
+import type { StockStateRequest } from '../models/StockStateRequest';
+import type { StockStateResponse } from '../models/StockStateResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class ModelService {
+export class StockStateService {
     /**
-     * @returns ModelResponse
+     * @returns StockStateResponse
      * @throws ApiError
      */
-    public static modelGetAll(): CancelablePromise<Array<ModelResponse>> {
+    public static stockStateGetAll(): CancelablePromise<Array<StockStateResponse>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/Model/GetAll',
+            url: '/StockState/GetAll',
         });
     }
     /**
      * @param id
-     * @returns ModelResponse
+     * @returns StockStateResponse
      * @throws ApiError
      */
-    public static modelGet(
+    public static stockStateGet(
         id?: number,
-    ): CancelablePromise<ModelResponse> {
+    ): CancelablePromise<StockStateResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/Model/GetById',
+            url: '/StockState/GetById',
             query: {
                 'Id': id,
             },
@@ -36,15 +36,15 @@ export class ModelService {
     }
     /**
      * @param code
-     * @returns ModelResponse
+     * @returns StockStateResponse
      * @throws ApiError
      */
-    public static modelGet2(
+    public static stockStateGet2(
         code?: string,
-    ): CancelablePromise<ModelResponse> {
+    ): CancelablePromise<StockStateResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/Model/GetByCode',
+            url: '/StockState/GetByCode',
             query: {
                 'Code': code,
             },
@@ -52,29 +52,29 @@ export class ModelService {
     }
     /**
      * @param data
-     * @returns ModelResponse
+     * @returns StockStateResponse
      * @throws ApiError
      */
-    public static modelCreate(
-        data: ModelRequest,
-    ): CancelablePromise<ModelResponse> {
+    public static stockStateCreate(
+        data: StockStateRequest,
+    ): CancelablePromise<StockStateResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/Model/Create',
+            url: '/StockState/Create',
             body: data,
         });
     }
     /**
      * @param data
-     * @returns ModelResponse
+     * @returns StockStateResponse
      * @throws ApiError
      */
-    public static modelUpdate(
-        data: ModelRequest,
-    ): CancelablePromise<ModelResponse> {
+    public static stockStateUpdate(
+        data: StockStateRequest,
+    ): CancelablePromise<StockStateResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/Model/Update',
+            url: '/StockState/Update',
             body: data,
         });
     }
@@ -83,12 +83,12 @@ export class ModelService {
      * @returns any
      * @throws ApiError
      */
-    public static modelDelete(
-        data: ModelRequest,
+    public static stockStateDelete(
+        data: StockStateRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/Model/Delete',
+            url: '/StockState/Delete',
             body: data,
         });
     }

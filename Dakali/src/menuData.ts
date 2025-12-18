@@ -25,6 +25,16 @@ export const menuData: MenuItem[] = [
         id: "Product",
         label: "Producto",
         pageKey: "Product",
+      },
+      {
+        id: "Stock",
+        label: "Stock",
+        pageKey: "Stock",
+      },
+      {
+        id: "StockState",
+        label: "Estado Stock",
+        pageKey: "StockState",
       }
     ],
   }

@@ -5,11 +5,15 @@ import { menuData } from "./menuData";
 import { CategoryPage } from "./pages/Category/CategoryPage";
 import { ModelPage } from "./pages/Model/ModelPage";
 import { ProductPage } from "./pages/Product/ProductPage";
+import { StockPage } from "./pages/Stock/StockPage";
+import { StockStatePage } from "./pages/StockState/StockStatePage";
 
 type PageKey =
   | "Default"
   | "Category"
   | "Product"
+  | "Stock"
+  | "StockState"
   | "Model";
 
 function App() {
@@ -23,6 +27,10 @@ function App() {
         return <ModelPage></ModelPage>;
       case "Product":
         return <ProductPage></ProductPage>;
+      case "Stock":
+        return <StockPage></StockPage>;
+      case "StockState":
+        return <StockStatePage></StockStatePage>;
       default:
         return <Text>Selecciona una opción del menú.</Text>;
     }
