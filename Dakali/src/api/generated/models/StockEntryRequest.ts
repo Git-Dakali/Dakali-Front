@@ -2,8 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { RequestCode } from './RequestCode';
-export type StockStateRequest = (RequestCode & {
-    name: string;
-});
+import type { StockRequest } from './StockRequest';
+export type StockEntryRequest = {
+    stock: StockRequest;
+    amount: number;
+};
 

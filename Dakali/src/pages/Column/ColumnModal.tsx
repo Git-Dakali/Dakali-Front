@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box } from "@radix-ui/themes";
-import type { CategoryRequest, CategoryResponse } from "../../api/generated";
+import type { ColumnRequest, ColumnResponse } from "../../api/generated";
 
-type CategoryModalProps = {
+type ColumnModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: CategoryResponse | null;         // null = crear
-  onSave: (values: CategoryRequest) => Promise<void> | void;
+  column: ColumnResponse | null;         // null = crear
+  onSave: (values: ColumnRequest) => Promise<void> | void;
 };
 
-export const CategoryModal: React.FC<CategoryModalProps> = ({
+export const ColumnModal: React.FC<ColumnModalProps> = ({
   open,
   onOpenChange,
-  category,
+  column,
   onSave,
 }) => {
-  const [code, setCode] = useState(category?.code ?? "");
-  const [name, setName] = useState(category?.name ?? "");
+  const [code, setCode] = useState(column?.code ?? "");
+  const [name, setName] = useState(column?.name ?? "");
 
   const handleSubmit = () => {
-    onSave({ id: category?.id ?? 0, guid: category?.guid ?? crypto.randomUUID(), code, name, searchString: category?.searchString ?? "" });
+    onSave({ id: column?.id ?? 0, guid: column?.guid ?? crypto.randomUUID(), code, name, searchString: column?.searchString ?? "" });
   };
 
-  const title = category ? "Editar categoría" : "Crear categoría";
+  const title = column ? "Editar Columna" : "Crear Columna";
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -33,7 +33,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
           <Box>
             <Text size="2" mb="1" style={{ display: "block" }}>Código</Text>
             {
-                category ? 
+                column ? 
                 (<TextField.Root value={code} onChange={(e) => setCode(e.target.value)} disabled />) : 
                 (<TextField.Root value={code} onChange={(e) => setCode(e.target.value)}/>)
             }

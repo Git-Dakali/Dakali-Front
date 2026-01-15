@@ -45,7 +45,7 @@ export const ProductPage: React.FC = () => {
         .catch((error) => 
           { 
             console.log({error});
-            setErrorMessage(error.body);
+            setErrorMessage(error.body.message);
             setErrorOpen(true);
             setRefreshProducts(!refreshProducts);
           });
@@ -60,7 +60,7 @@ export const ProductPage: React.FC = () => {
           .catch((error) => 
           { 
             console.log({error});
-            setErrorMessage(error.body);
+            setErrorMessage(error.body.message);
             setErrorOpen(true);
             setRefreshProducts(!refreshProducts);
           });

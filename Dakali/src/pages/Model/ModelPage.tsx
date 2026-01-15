@@ -45,7 +45,7 @@ export const ModelPage: React.FC = () => {
         .catch((error) => 
           { 
             console.log({error});
-            setErrorMessage(error.body);
+            setErrorMessage(error.body.message);
             setErrorOpen(true);
             setRefreshModels(!refreshModels);
           });
@@ -59,7 +59,7 @@ export const ModelPage: React.FC = () => {
         .catch((error) => 
           { 
             console.log({error});
-            setErrorMessage(error.body);
+            setErrorMessage(error.body.message);
             setErrorOpen(true);
             setRefreshModels(!refreshModels);
           });

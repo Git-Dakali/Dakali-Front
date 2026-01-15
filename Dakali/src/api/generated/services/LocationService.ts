@@ -2,39 +2,33 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { StockEntryRequest } from '../models/StockEntryRequest';
-import type { StockFilter } from '../models/StockFilter';
-import type { StockRequest } from '../models/StockRequest';
-import type { StockResponse } from '../models/StockResponse';
+import type { LocationRequest } from '../models/LocationRequest';
+import type { LocationResponse } from '../models/LocationResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class StockService {
+export class LocationService {
     /**
-     * @param stockFilter
-     * @returns StockResponse
+     * @returns LocationResponse
      * @throws ApiError
      */
-    public static stockGetAll(
-        stockFilter: StockFilter,
-    ): CancelablePromise<Array<StockResponse>> {
+    public static locationGetAll(): CancelablePromise<Array<LocationResponse>> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Stock/GetAll',
-            body: stockFilter,
+            method: 'GET',
+            url: '/Location/GetAll',
         });
     }
     /**
      * @param id
-     * @returns StockResponse
+     * @returns LocationResponse
      * @throws ApiError
      */
-    public static stockGet(
+    public static locationGet(
         id?: number,
-    ): CancelablePromise<StockResponse> {
+    ): CancelablePromise<LocationResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/Stock/GetById',
+            url: '/Location/GetById',
             query: {
                 'Id': id,
             },
@@ -42,15 +36,29 @@ export class StockService {
     }
     /**
      * @param data
-     * @returns StockResponse
+     * @returns LocationResponse
      * @throws ApiError
      */
-    public static stockCreate(
-        data: StockRequest,
-    ): CancelablePromise<StockResponse> {
+    public static locationCreate(
+        data: LocationRequest,
+    ): CancelablePromise<LocationResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/Stock/Create',
+            url: '/Location/Create',
+            body: data,
+        });
+    }
+    /**
+     * @param data
+     * @returns LocationResponse
+     * @throws ApiError
+     */
+    public static locationUpdate(
+        data: LocationRequest,
+    ): CancelablePromise<LocationResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Location/Update',
             body: data,
         });
     }
@@ -59,26 +67,12 @@ export class StockService {
      * @returns any
      * @throws ApiError
      */
-    public static stockStockEntry(
-        data: StockEntryRequest,
+    public static locationDelete(
+        data: LocationRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/Stock/StockEntry',
-            body: data,
-        });
-    }
-    /**
-     * @param data
-     * @returns any
-     * @throws ApiError
-     */
-    public static stockDelete(
-        data: StockRequest,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Stock/Delete',
+            url: '/Location/Delete',
             body: data,
         });
     }

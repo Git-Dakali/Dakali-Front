@@ -2,33 +2,33 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { StockStateRequest } from '../models/StockStateRequest';
-import type { StockStateResponse } from '../models/StockStateResponse';
+import type { ColumnRequest } from '../models/ColumnRequest';
+import type { ColumnResponse } from '../models/ColumnResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class StockStateService {
+export class ColumnService {
     /**
-     * @returns StockStateResponse
+     * @returns ColumnResponse
      * @throws ApiError
      */
-    public static stockStateGetAll(): CancelablePromise<Array<StockStateResponse>> {
+    public static columnGetAll(): CancelablePromise<Array<ColumnResponse>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/StockState/GetAll',
+            url: '/Column/GetAll',
         });
     }
     /**
      * @param id
-     * @returns StockStateResponse
+     * @returns ColumnResponse
      * @throws ApiError
      */
-    public static stockStateGet(
+    public static columnGet(
         id?: number,
-    ): CancelablePromise<StockStateResponse> {
+    ): CancelablePromise<ColumnResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/StockState/GetById',
+            url: '/Column/GetById',
             query: {
                 'Id': id,
             },
@@ -36,15 +36,15 @@ export class StockStateService {
     }
     /**
      * @param code
-     * @returns StockStateResponse
+     * @returns ColumnResponse
      * @throws ApiError
      */
-    public static stockStateGet2(
+    public static columnGet2(
         code?: string,
-    ): CancelablePromise<StockStateResponse> {
+    ): CancelablePromise<ColumnResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/StockState/GetByCode',
+            url: '/Column/GetByCode',
             query: {
                 'Code': code,
             },
@@ -52,29 +52,29 @@ export class StockStateService {
     }
     /**
      * @param data
-     * @returns StockStateResponse
+     * @returns ColumnResponse
      * @throws ApiError
      */
-    public static stockStateCreate(
-        data: StockStateRequest,
-    ): CancelablePromise<StockStateResponse> {
+    public static columnCreate(
+        data: ColumnRequest,
+    ): CancelablePromise<ColumnResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/StockState/Create',
+            url: '/Column/Create',
             body: data,
         });
     }
     /**
      * @param data
-     * @returns StockStateResponse
+     * @returns ColumnResponse
      * @throws ApiError
      */
-    public static stockStateUpdate(
-        data: StockStateRequest,
-    ): CancelablePromise<StockStateResponse> {
+    public static columnUpdate(
+        data: ColumnRequest,
+    ): CancelablePromise<ColumnResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/StockState/Update',
+            url: '/Column/Update',
             body: data,
         });
     }
@@ -83,12 +83,12 @@ export class StockStateService {
      * @returns any
      * @throws ApiError
      */
-    public static stockStateDelete(
-        data: StockStateRequest,
+    public static columnDelete(
+        data: ColumnRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/StockState/Delete',
+            url: '/Column/Delete',
             body: data,
         });
     }

@@ -6,15 +6,25 @@ import { CategoryPage } from "./pages/Category/CategoryPage";
 import { ModelPage } from "./pages/Model/ModelPage";
 import { ProductPage } from "./pages/Product/ProductPage";
 import { StockPage } from "./pages/Stock/StockPage";
-import { StockStatePage } from "./pages/StockState/StockStatePage";
+import { LocationPage } from "./pages/Location/LocationPage";
+import { LocationStatePage } from "./pages/LocationState/LocationStatePage";
+import { HallwayPage } from "./pages/Hallway/HallwayPage";
+import { ColumnPage } from "./pages/Column/ColumnPage";
+import { LevelPage } from "./pages/Level/LevelPage";
+import { SalesPage } from "./pages/Sales/SalesPage";
 
 type PageKey =
   | "Default"
   | "Category"
   | "Product"
   | "Stock"
-  | "StockState"
-  | "Model";
+  | "Location"
+  | "LocationState"
+  | "Model"
+  | "Hallway"
+  | "Column"
+  | "Level"
+  | "Sales";
 
 function App() {
   const [selectedPage, setSelectedPage] = useState<PageKey>("Default");
@@ -29,8 +39,18 @@ function App() {
         return <ProductPage></ProductPage>;
       case "Stock":
         return <StockPage></StockPage>;
-      case "StockState":
-        return <StockStatePage></StockStatePage>;
+      case "LocationState":
+        return <LocationStatePage></LocationStatePage>;
+      case "Location":
+        return <LocationPage></LocationPage>;
+      case "Hallway":
+        return <HallwayPage></HallwayPage>;
+      case "Column":
+        return <ColumnPage></ColumnPage>;
+      case "Level":
+        return <LevelPage></LevelPage>;
+      case "Sales":
+        return <SalesPage></SalesPage>;
       default:
         return <Text>Selecciona una opción del menú.</Text>;
     }

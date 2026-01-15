@@ -1,22 +1,32 @@
 import React, {useEffect, useState} from "react";
-import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
-import { PlusCircledIcon, TrashIcon, Pencil1Icon } from "@radix-ui/react-icons"
+import { Grid, Box, Table, Button, Flex, Tooltip, Heading, TextField } from "@radix-ui/themes";
 import { ErrorModal } from "../../components/ErrorModal";
-import { StockService, type StockRequest, type StockResponse } from "../../api/generated";
+import { StockService, type StockEntryRequest, type StockRequest, type StockResponse } from "../../api/generated";
 import { StockModal } from "./StockModal";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilter, faBoxesStacked, faDollyBox, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { AddStockModal } from "./AddStockModal";
+
 
 export const StockPage: React.FC = () => {
 
   const [refreshStocks, setRefreshStocks] = useState(false);
   const [stocks, setStocks] = useState<StockResponse[]>([]);
+  const [searchString, setSearchString] = useState<string>("");
+  const [filterSearchString, setFilterSearchString] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenStockEntry, setIsModalOpenStockEntry] = useState(false);
   const [selectedStock, setSelectedStock] = useState<StockResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(()=> {
-    StockService.stockGetAll().then(data => {setStocks(data)});
-  }, [refreshStocks]);
+    StockService.stockGetAll({searchString}).then(data => {setStocks(data)});
+  }, [refreshStocks, searchString]);
+
+  const Filtrar = ()=>{
+    setSearchString(filterSearchString);
+  };
 
   const DeleteEvent = (stock:StockResponse) =>{
     StockService.stockDelete(stock as StockRequest).then(()=>{ setRefreshStocks(!refreshStocks); });
@@ -27,44 +37,41 @@ export const StockPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const EditEvent = (stock:StockResponse) =>{
-    setSelectedStock(stock);
-    setIsModalOpen(true);
+  const StockEntryService = async (stockEntry:StockEntryRequest)=>{
+    await StockService.stockStockEntry(stockEntry)
+    .then(()=>{ 
+        setRefreshStocks(!refreshStocks); 
+        setIsModalOpenStockEntry(false);
+    })
+    .catch((error) =>{ 
+        console.log({error});
+        setErrorMessage(error.body.message);
+        setErrorOpen(true);
+        setRefreshStocks(!refreshStocks);
+    });
   };
   
-  const SaveService = async (stockRequest: StockRequest) => {
+  const CreateStockService = async (stockRequest: StockRequest) => {
 
-      if(stockRequest.id == 0)
-      {
-        await StockService.stockCreate(stockRequest)
+      await StockService.stockCreate(stockRequest)
         .then(()=>{ 
             setRefreshStocks(!refreshStocks); 
             setIsModalOpen(false);
         })
         .catch((error) => 
-          { 
-            console.log({error});
-            setErrorMessage(error.body);
-            setErrorOpen(true);
-            setRefreshStocks(!refreshStocks);
-          });
-
-      }
-      else
-        await StockService.stockUpdate(stockRequest).then(()=>{ 
-            setRefreshStocks(!refreshStocks); 
-            setIsModalOpen(false);
-        })
-        .catch((error) => 
-          { 
-            console.log({error});
-            setErrorMessage(error.body);
-            setErrorOpen(true);
-            setRefreshStocks(!refreshStocks);
-          });
-
-    
+        { 
+          console.log({error});
+          setErrorMessage(error.body.message);
+          setErrorOpen(true);
+          setRefreshStocks(!refreshStocks);
+        });
   };
+
+  const AddStockEntryEvent = (stock:StockResponse) => {
+    setSelectedStock(stock);
+    setIsModalOpenStockEntry(true);
+  };
+
   return (
     <>
       <Grid columns="1fr 100fr 1fr" gap="1" rows="1fr 10fr 1fr" width="auto" height="100%">
@@ -72,44 +79,49 @@ export const StockPage: React.FC = () => {
         <Box></Box>
         <Box></Box>
         <Box>
-            <Grid rows="auto 1fr" columns="1" height={"100%"} gap={"2"}>
-                <Flex justify={"end"}>
-                    <Tooltip content="Crear"><Button onClick={CreateEvent}><PlusCircledIcon/></Button></Tooltip>
-                </Flex>
+            <Grid rows="auto 1fr" columns="10fr 1fr 2fr" height={"100%"} gap={"2"}>
                 <Box>
+                  <TextField.Root placeholder="Filtro" value={filterSearchString} onChange={(e) => setFilterSearchString(e.target.value)}/>
+                </Box>
+                <Flex justify={"start"}>
+                  <Button onClick={Filtrar}><FontAwesomeIcon icon={faFilter} /></Button>
+                </Flex>
+                <Flex justify={"end"}>
+                    <Tooltip content="Crear"><Button onClick={CreateEvent}><FontAwesomeIcon icon={faPlusCircle} /></Button></Tooltip>
+                </Flex>
+                <Box gridColumn={"span 3"}>
                     <Table.Root variant="surface">
                         <Table.Header>
                         <Table.Row>
-                            <Table.ColumnHeaderCell width={"30%"}>Producto</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell width={"28%"}>Producto</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell width={"10%"}>Variante</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell width={"10%"}>Color</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell width={"7%"}>Color</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell width={"15%"}>Ubicacion</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell width={"5%"}>Stock Fisico</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell width={"5%"}>Stock Reservado</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell width={"5%"}>Stock Transito</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell width={"5%"}>Stock Libre</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell width={"5%"}>Minimo</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell width={"5%"}>Maximo</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell width={"10%"}>Estado</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell width={"10%"}>Acciones</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell width={"5%"}>Estado</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                         </Table.Row>
                         </Table.Header>
                         <Table.Body>
                         {stocks.map(stock => {
                             return (
                             <Table.Row key={stock.guid}>
-                                <Table.Cell>{stock.product.name}</Table.Cell>
+                                <Table.Cell>{stock.product.model.code}-{stock.product.name}</Table.Cell>
                                 <Table.Cell>{stock.variant.name}</Table.Cell>
                                 <Table.Cell>{stock.color.name}</Table.Cell>
+                                <Table.Cell>{stock.location.hallway.code}-{stock.location.column.code}-{stock.location.level.code}</Table.Cell>
                                 <Table.Cell>{stock.physical}</Table.Cell>
                                 <Table.Cell>{stock.reserved}</Table.Cell>
                                 <Table.Cell>{stock.transit}</Table.Cell>
                                 <Table.Cell>{stock.free}</Table.Cell>
-                                <Table.Cell>{stock.minimum}</Table.Cell>
-                                <Table.Cell>{stock.maximum}</Table.Cell>
-                                <Table.Cell>{stock.state.name}</Table.Cell>
+                                <Table.Cell>{stock.location.state.name}</Table.Cell>
                                 <Table.Cell>
-                                    <Tooltip content="Editar"><Button onClick={() => { EditEvent(stock);}}><Pencil1Icon/></Button></Tooltip>
-                                    <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(stock);}} color="red"><TrashIcon/></Button></Tooltip>
+                                    <Tooltip content="Agregar Stock"><Button onClick={() => { AddStockEntryEvent(stock);}} color="green"><FontAwesomeIcon icon={faBoxesStacked} /></Button></Tooltip>
+                                    <Tooltip content="Mover Stock"><Button onClick={() => { AddStockEntryEvent(stock);}}><FontAwesomeIcon icon={faDollyBox} /></Button></Tooltip>
+                                    <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(stock);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
                                 </Table.Cell>
                             </Table.Row>
                             );
@@ -126,8 +138,16 @@ export const StockPage: React.FC = () => {
           key={selectedStock?.id ?? "new"}  
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          stock={selectedStock}
-          onSave={SaveService}
+          onSave={CreateStockService}
+        />
+      )}
+      {isModalOpenStockEntry && (
+        <AddStockModal
+          key={selectedStock?.id??0}  
+          open={isModalOpenStockEntry}
+          onOpenChange={setIsModalOpenStockEntry}
+          stock={selectedStock as StockResponse}
+          onSave={StockEntryService}
         />
       )}
       <ErrorModal

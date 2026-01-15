@@ -1,66 +1,64 @@
 import React, {useEffect, useState} from "react";
 import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
 import { PlusCircledIcon, TrashIcon, Pencil1Icon } from "@radix-ui/react-icons"
-import { CategoryService } from "../../api/generated/services/CategoryService"
-import { CategoryModal } from "./CategoryModal"
 import { ErrorModal } from "../../components/ErrorModal";
-import type { CategoryRequest, CategoryResponse } from "../../api/generated";
+import { LevelService, type ColumnRequest, type LevelRequest, type LevelResponse } from "../../api/generated";
+import { LevelModal } from "./LevelModal";
 
-export const CategoryPage: React.FC = () => {
+export const LevelPage: React.FC = () => {
 
-  const [refreshCategories, setRefreshCategories] = useState(false);
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [refreshLevels, setRefreshLevels] = useState(false);
+  const [levels, setLevels] = useState<LevelResponse[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<LevelResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(()=> {
-    CategoryService.categoryGetAll().then(data => {setCategories(data)});
-  }, [refreshCategories]);
+    LevelService.levelGetAll().then(data => {setLevels(data)});
+  }, [refreshLevels]);
 
-  const DeleteEvent = (category:CategoryRequest) =>{
-    CategoryService.categoryDelete(category).then(()=>{ setRefreshCategories(!refreshCategories); });
+  const DeleteEvent = (level:LevelRequest) =>{
+    LevelService.levelDelete(level).then(()=>{ setRefreshLevels(!refreshLevels); });
   };
 
   const CreateEvent =  () =>{
-    setSelectedCategory(null);
+    setSelectedLevel(null);
     setIsModalOpen(true);
   };
 
-  const EditEvent = (category:CategoryResponse) =>{
-    setSelectedCategory(category);
+  const EditEvent = (level:LevelResponse) =>{
+    setSelectedLevel(level);
     setIsModalOpen(true);
   };
   
-  const SaveService = async (categoryRequest: CategoryRequest) => {
+  const SaveService = async (levelRequest: LevelRequest) => {
 
-      if(categoryRequest.id == 0)
+      if(levelRequest.id == 0)
       {
-        await CategoryService.categoryCreate(categoryRequest)
+        await LevelService.levelCreate(levelRequest)
         .then(()=>{ 
-          setRefreshCategories(!refreshCategories);
-          setIsModalOpen(false); 
+          setRefreshLevels(!refreshLevels); 
+          setIsModalOpen(false);
         })
         .catch((error) => { 
           console.log({error});
           setErrorMessage(error.body.message);
           setErrorOpen(true);
-          setRefreshCategories(!refreshCategories);
+          setRefreshLevels(!refreshLevels);
         });
 
       }
       else
-        await CategoryService.categoryUpdate(categoryRequest)
-        .then(()=>{ 
-          setRefreshCategories(!refreshCategories);
-          setIsModalOpen(false); 
+        await LevelService.levelUpdate(levelRequest).then(()=>{ 
+          setRefreshLevels(!refreshLevels);
+          setIsModalOpen(false);
         })
         .catch((error) => { 
           console.log({error});
           setErrorMessage(error.body.message);
           setErrorOpen(true);
-          setRefreshCategories(!refreshCategories);
+          setRefreshLevels(!refreshLevels);
         });
 
     
@@ -68,7 +66,7 @@ export const CategoryPage: React.FC = () => {
   return (
     <>
       <Grid columns="1fr 100fr 1fr" gap="1" rows="1fr 10fr 1fr" width="auto" height="100%">
-        <Box gridColumn={"span 2"}><Heading size="8">Categoria</Heading></Box>
+        <Box gridColumn={"span 2"}><Heading size="8">Nivel</Heading></Box>
         <Box></Box>
         <Box></Box>
         <Box>
@@ -80,22 +78,20 @@ export const CategoryPage: React.FC = () => {
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
-                    <Table.ColumnHeaderCell width={"5%"}>Id</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"10%"}>Code</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"70%"}>Name</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {categories.map(category => {
+                  {levels.map(level => {
                     return (
-                      <Table.Row key={category.id}>
-                        <Table.Cell>{category.id}</Table.Cell>
-                        <Table.Cell>{category.code}</Table.Cell>
-                        <Table.Cell>{category.name}</Table.Cell>
+                      <Table.Row key={level.guid}>
+                        <Table.Cell>{level.code}</Table.Cell>
+                        <Table.Cell>{level.name}</Table.Cell>
                         <Table.Cell>
-                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(category);}}><Pencil1Icon/></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(category as CategoryRequest);}} color="red"><TrashIcon/></Button></Tooltip>
+                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(level);}}><Pencil1Icon/></Button></Tooltip>
+                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(level as ColumnRequest);}} color="red"><TrashIcon/></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
                     );
@@ -108,11 +104,11 @@ export const CategoryPage: React.FC = () => {
         </Box>
       </Grid>
       {isModalOpen && (
-        <CategoryModal
-          key={selectedCategory?.id ?? "new"}  
+        <LevelModal
+          key={selectedLevel?.id ?? "new"}  
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          category={selectedCategory}
+          level={selectedLevel}
           onSave={SaveService}
         />
       )}

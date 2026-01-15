@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box } from "@radix-ui/themes";
-import type { CategoryRequest, CategoryResponse } from "../../api/generated";
+import type { HallwayRequest, HallwayResponse } from "../../api/generated";
 
-type CategoryModalProps = {
+type HallwayModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: CategoryResponse | null;         // null = crear
-  onSave: (values: CategoryRequest) => Promise<void> | void;
+  hallway: HallwayResponse | null;         // null = crear
+  onSave: (values: HallwayRequest) => Promise<void> | void;
 };
 
-export const CategoryModal: React.FC<CategoryModalProps> = ({
+export const HallwayModal: React.FC<HallwayModalProps> = ({
   open,
   onOpenChange,
-  category,
+  hallway,
   onSave,
 }) => {
-  const [code, setCode] = useState(category?.code ?? "");
-  const [name, setName] = useState(category?.name ?? "");
+  const [code, setCode] = useState(hallway?.code ?? "");
+  const [name, setName] = useState(hallway?.name ?? "");
 
   const handleSubmit = () => {
-    onSave({ id: category?.id ?? 0, guid: category?.guid ?? crypto.randomUUID(), code, name, searchString: category?.searchString ?? "" });
+    onSave({ id: hallway?.id ?? 0, guid: hallway?.guid?? crypto.randomUUID(), code, name, searchString: hallway?.searchString ?? "" });
   };
 
-  const title = category ? "Editar categoría" : "Crear categoría";
+  const title = hallway ? "Editar Pasillo" : "Crear Pasillo";
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -33,7 +33,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
           <Box>
             <Text size="2" mb="1" style={{ display: "block" }}>Código</Text>
             {
-                category ? 
+                hallway ? 
                 (<TextField.Root value={code} onChange={(e) => setCode(e.target.value)} disabled />) : 
                 (<TextField.Root value={code} onChange={(e) => setCode(e.target.value)}/>)
             }

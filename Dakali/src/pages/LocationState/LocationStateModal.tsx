@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box } from "@radix-ui/themes";
-import type { StockStateRequest, StockStateResponse } from "../../api/generated";
+import type { LocationStateRequest, LocationStateResponse } from "../../api/generated";
 
-type StockStateModalProps = {
+type LocationStateModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  state: StockStateResponse | null;         
-  onSave: (values: StockStateRequest) => Promise<void> | void;
+  state: LocationStateResponse | null;         
+  onSave: (values: LocationStateRequest) => Promise<void> | void;
 };
 
-export const StockStateModal: React.FC<StockStateModalProps> = ({
+export const LocationStateModal: React.FC<LocationStateModalProps> = ({
   open,
   onOpenChange,
   state,
@@ -20,10 +20,9 @@ export const StockStateModal: React.FC<StockStateModalProps> = ({
 
   const handleSubmit = () => {
     onSave({ id: state?.id ?? 0, guid: state?.guid ?? crypto.randomUUID(), code, name, searchString: state?.searchString ?? "" });
-    onOpenChange(false);
   };
 
-  const title = state ? "Editar Estado Stock" : "Crear Estado Stock";
+  const title = state ? "Editar Estado Ubicacion" : "Crear Estado Ubicacion";
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

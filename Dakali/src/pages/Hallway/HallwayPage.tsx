@@ -1,66 +1,64 @@
 import React, {useEffect, useState} from "react";
 import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
 import { PlusCircledIcon, TrashIcon, Pencil1Icon } from "@radix-ui/react-icons"
-import { CategoryService } from "../../api/generated/services/CategoryService"
-import { CategoryModal } from "./CategoryModal"
 import { ErrorModal } from "../../components/ErrorModal";
-import type { CategoryRequest, CategoryResponse } from "../../api/generated";
+import { HallwayService, type ColumnResponse, type HallwayRequest, type HallwayResponse } from "../../api/generated";
+import { HallwayModal } from "./HallwayModal";
 
-export const CategoryPage: React.FC = () => {
+export const HallwayPage: React.FC = () => {
 
-  const [refreshCategories, setRefreshCategories] = useState(false);
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [refreshHallways, setRefreshHallways] = useState(false);
+  const [hallways, setHallways] = useState<HallwayResponse[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
+  const [selectedHallway, setSelectedHallway] = useState<ColumnResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(()=> {
-    CategoryService.categoryGetAll().then(data => {setCategories(data)});
-  }, [refreshCategories]);
+    HallwayService.hallwayGetAll().then(data => {setHallways(data)});
+  }, [refreshHallways]);
 
-  const DeleteEvent = (category:CategoryRequest) =>{
-    CategoryService.categoryDelete(category).then(()=>{ setRefreshCategories(!refreshCategories); });
+  const DeleteEvent = (hallway:HallwayRequest) =>{
+    HallwayService.hallwayDelete(hallway).then(()=>{ setRefreshHallways(!refreshHallways); });
   };
 
   const CreateEvent =  () =>{
-    setSelectedCategory(null);
+    setSelectedHallway(null);
     setIsModalOpen(true);
   };
 
-  const EditEvent = (category:CategoryResponse) =>{
-    setSelectedCategory(category);
+  const EditEvent = (hallway:HallwayResponse) =>{
+    setSelectedHallway(hallway);
     setIsModalOpen(true);
   };
   
-  const SaveService = async (categoryRequest: CategoryRequest) => {
+  const SaveService = async (hallwayRequest: HallwayRequest) => {
 
-      if(categoryRequest.id == 0)
+      if(hallwayRequest.id == 0)
       {
-        await CategoryService.categoryCreate(categoryRequest)
+        await HallwayService.hallwayCreate(hallwayRequest)
         .then(()=>{ 
-          setRefreshCategories(!refreshCategories);
+          setRefreshHallways(!refreshHallways);
           setIsModalOpen(false); 
         })
         .catch((error) => { 
           console.log({error});
           setErrorMessage(error.body.message);
           setErrorOpen(true);
-          setRefreshCategories(!refreshCategories);
+          setRefreshHallways(!refreshHallways);
         });
 
       }
       else
-        await CategoryService.categoryUpdate(categoryRequest)
-        .then(()=>{ 
-          setRefreshCategories(!refreshCategories);
-          setIsModalOpen(false); 
+        await HallwayService.hallwayUpdate(hallwayRequest).then(()=>{ 
+          setRefreshHallways(!refreshHallways); 
+          setIsModalOpen(false);
         })
         .catch((error) => { 
           console.log({error});
           setErrorMessage(error.body.message);
           setErrorOpen(true);
-          setRefreshCategories(!refreshCategories);
+          setRefreshHallways(!refreshHallways);
         });
 
     
@@ -68,7 +66,7 @@ export const CategoryPage: React.FC = () => {
   return (
     <>
       <Grid columns="1fr 100fr 1fr" gap="1" rows="1fr 10fr 1fr" width="auto" height="100%">
-        <Box gridColumn={"span 2"}><Heading size="8">Categoria</Heading></Box>
+        <Box gridColumn={"span 2"}><Heading size="8">Pasillo</Heading></Box>
         <Box></Box>
         <Box></Box>
         <Box>
@@ -80,22 +78,20 @@ export const CategoryPage: React.FC = () => {
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
-                    <Table.ColumnHeaderCell width={"5%"}>Id</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"10%"}>Code</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"70%"}>Name</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {categories.map(category => {
+                  {hallways.map(hallway => {
                     return (
-                      <Table.Row key={category.id}>
-                        <Table.Cell>{category.id}</Table.Cell>
-                        <Table.Cell>{category.code}</Table.Cell>
-                        <Table.Cell>{category.name}</Table.Cell>
+                      <Table.Row key={hallway.guid}>
+                        <Table.Cell>{hallway.code}</Table.Cell>
+                        <Table.Cell>{hallway.name}</Table.Cell>
                         <Table.Cell>
-                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(category);}}><Pencil1Icon/></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(category as CategoryRequest);}} color="red"><TrashIcon/></Button></Tooltip>
+                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(hallway);}}><Pencil1Icon/></Button></Tooltip>
+                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(hallway as HallwayRequest);}} color="red"><TrashIcon/></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
                     );
@@ -108,11 +104,11 @@ export const CategoryPage: React.FC = () => {
         </Box>
       </Grid>
       {isModalOpen && (
-        <CategoryModal
-          key={selectedCategory?.id ?? "new"}  
+        <HallwayModal
+          key={selectedHallway?.id ?? "new"}  
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          category={selectedCategory}
+          hallway={selectedHallway}
           onSave={SaveService}
         />
       )}

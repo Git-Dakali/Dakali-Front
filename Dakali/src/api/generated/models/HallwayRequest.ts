@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ResponseCode } from './ResponseCode';
-export type StockStateResponse = (ResponseCode & {
+import type { RequestCode } from './RequestCode';
+export type HallwayRequest = (RequestCode & {
     name: string;
 });
 
