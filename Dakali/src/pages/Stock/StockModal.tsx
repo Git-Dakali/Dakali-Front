@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Select } from "@radix-ui/themes";
-import { type ColorRequest,  type LocationRequest,  type LocationResponse,  type ProductRequest, type ProductResponse, type StockRequest, type VariantRequest, LocationService, ProductService } from "../../api/generated";
+import { type ProductColorRequest,  type LocationRequest,  type LocationResponse,  type ProductRequest, type ProductResponse, type StockRequest, type VariantRequest, LocationService, ProductService } from "../../api/generated";
 
 type StockModalProps = {
   open: boolean;
@@ -48,7 +48,7 @@ export const StockModal : React.FC<StockModalProps> = ({
     stockRequest.searchString = "";
     stockRequest.product = product as ProductRequest;
     stockRequest.variant = variant as VariantRequest;
-    stockRequest.color = color as ColorRequest;
+    stockRequest.color = color as ProductColorRequest;
     stockRequest.location = location as LocationRequest;
     stockRequest.physical = physical;
     stockRequest.free = free;
@@ -70,7 +70,7 @@ export const StockModal : React.FC<StockModalProps> = ({
             <Box>
               <Text size="2" mb="1" style={{ display: "block" }}>Producto</Text>
               <Select.Root value={selectedProductID} onValueChange={setSelectedProductID}>
-                  <Select.Trigger placeholder="Seleccione un Producto"/>
+                  <Select.Trigger placeholder="Seleccione un Producto" style={{ width: "100%" }}/>
                   <Select.Content>
                     {
                       products.map((item)=>{
@@ -83,7 +83,7 @@ export const StockModal : React.FC<StockModalProps> = ({
             <Box>
               <Text size="2" mb="1" style={{ display: "block" }}>Variante</Text>
               <Select.Root value={selectedVariantID} onValueChange={setSelectedVariantID}>
-                  <Select.Trigger placeholder="Seleccione una variante"/>
+                  <Select.Trigger placeholder="Seleccione una variante" style={{ width: "100%" }}/>
                   <Select.Content>
                     {
                       variants.map((item)=>{
@@ -96,7 +96,7 @@ export const StockModal : React.FC<StockModalProps> = ({
             <Box>
               <Text size="2" mb="1" style={{ display: "block" }}>Color</Text>
               <Select.Root value={selectedColorID} onValueChange={setSelectedColorID}>
-                  <Select.Trigger placeholder="Seleccione un color"/>
+                  <Select.Trigger placeholder="Seleccione un color" style={{ width: "100%" }}/>
                   <Select.Content>
                     {
                       colors.map((item)=>{
@@ -109,11 +109,11 @@ export const StockModal : React.FC<StockModalProps> = ({
             <Box gridColumn={"span 2"}>
               <Text size="2" mb="1" style={{ display: "block" }}>Ubicacion</Text>
               <Select.Root value={selectedLocationID} onValueChange={setSelectedLocationID}>
-                  <Select.Trigger placeholder="Seleccione una ubicacion"/>
+                  <Select.Trigger placeholder="Seleccione una ubicacion" style={{ width: "100%" }}/>
                   <Select.Content>
                     {
                       locations.map((item)=>{
-                        return (<Select.Item key={item.id} value={item.id.toString()}>{item.hallway.name}-{item.column.name}-{item.level.name}</Select.Item>)
+                        return (<Select.Item key={item.id} value={item.id.toString()}>{item.hallway?.name}-{item.column?.name}-{item.level?.name}</Select.Item>)
                       })
                     }
                   </Select.Content>

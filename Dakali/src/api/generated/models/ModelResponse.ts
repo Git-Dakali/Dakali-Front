@@ -6,7 +6,7 @@ import type { CategoryResponse } from './CategoryResponse';
 import type { FieldGroupResponse } from './FieldGroupResponse';
 import type { ResponseCode } from './ResponseCode';
 export type ModelResponse = (ResponseCode & {
-    category: CategoryResponse;
+    category?: CategoryResponse;
     fieldGroups: Array<FieldGroupResponse>;
     variantNames: Array<string>;
 });

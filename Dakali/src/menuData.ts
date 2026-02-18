@@ -29,6 +29,27 @@ export const menuData: MenuItem[] = [
     ],
   },
   {
+    id: "GeographicLocation",
+    label: "Ubicacion Geografica",
+    children: [
+      {
+        id: "Country",
+        label: "Pais",
+        pageKey: "Country",
+      },
+      {
+        id: "Province",
+        label: "Provincia",
+        pageKey: "Province",
+      },
+      {
+        id: "City",
+        label: "Localidad",
+        pageKey: "City",
+      }
+    ],
+  },
+  {
     id: "location",
     label: "Ubication",
     children: [
@@ -74,6 +95,16 @@ export const menuData: MenuItem[] = [
     id: "menuVentas",
     label: "Ventas",
     children: [
+      {
+        id: "OriginSale",
+        label: "Origen de Venta",
+        pageKey: "OriginSale",
+      },
+      {
+        id: "TaxStatus",
+        label: "Estado Fiscal",
+        pageKey: "TaxStatus",
+      },
       {
         id: "Sales",
         label: "Ventas",

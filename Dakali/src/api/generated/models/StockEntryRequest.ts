@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { StockRequest } from './StockRequest';
 export type StockEntryRequest = {
-    stock: StockRequest;
+    stock?: StockRequest;
     amount: number;
 };
 

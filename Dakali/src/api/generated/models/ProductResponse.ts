@@ -8,7 +8,7 @@ import type { VariantResponse } from './VariantResponse';
 export type ProductResponse = (ResponseGuid & {
     name: string;
     description: string;
-    model: ModelResponse;
+    model?: ModelResponse;
     variants: Array<VariantResponse>;
 });
 

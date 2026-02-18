@@ -2,21 +2,18 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { LocationRequest } from './LocationRequest';
 import type { ProductColorRequest } from './ProductColorRequest';
 import type { ProductRequest } from './ProductRequest';
 import type { RequestGuid } from './RequestGuid';
+import type { StockRequest } from './StockRequest';
 import type { VariantRequest } from './VariantRequest';
-export type StockRequest = (RequestGuid & {
+export type SaleDetailRequest = (RequestGuid & {
     product?: ProductRequest;
     variant?: VariantRequest;
     color?: ProductColorRequest;
-    location?: LocationRequest;
-    physical: number;
-    reserved: number;
-    transit: number;
-    free: number;
-    minimum: number;
-    maximum: number;
+    count: number;
+    price: number;
+    isExtra: boolean;
+    stock?: StockRequest;
 });
 

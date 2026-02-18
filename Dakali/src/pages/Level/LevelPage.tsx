@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
 import { PlusCircledIcon, TrashIcon, Pencil1Icon } from "@radix-ui/react-icons"
 import { ErrorModal } from "../../components/ErrorModal";
-import { LevelService, type ColumnRequest, type LevelRequest, type LevelResponse } from "../../api/generated";
+import { LevelService, type LevelRequest, type LevelResponse } from "../../api/generated";
 import { LevelModal } from "./LevelModal";
 
 export const LevelPage: React.FC = () => {
@@ -91,7 +91,7 @@ export const LevelPage: React.FC = () => {
                         <Table.Cell>{level.name}</Table.Cell>
                         <Table.Cell>
                           <Tooltip content="Editar"><Button onClick={() => { EditEvent(level);}}><Pencil1Icon/></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(level as ColumnRequest);}} color="red"><TrashIcon/></Button></Tooltip>
+                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(level as LevelRequest);}} color="red"><TrashIcon/></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
                     );

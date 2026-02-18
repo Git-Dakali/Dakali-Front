@@ -109,15 +109,15 @@ export const StockPage: React.FC = () => {
                         {stocks.map(stock => {
                             return (
                             <Table.Row key={stock.guid}>
-                                <Table.Cell>{stock.product.model.code}-{stock.product.name}</Table.Cell>
-                                <Table.Cell>{stock.variant.name}</Table.Cell>
-                                <Table.Cell>{stock.color.name}</Table.Cell>
-                                <Table.Cell>{stock.location.hallway.code}-{stock.location.column.code}-{stock.location.level.code}</Table.Cell>
+                                <Table.Cell>{stock.product?.model?.code}-{stock.product?.name}</Table.Cell>
+                                <Table.Cell>{stock.variant?.name}</Table.Cell>
+                                <Table.Cell>{stock.color?.name}</Table.Cell>
+                                <Table.Cell>{stock.location?.hallway?.code}-{stock.location?.column?.code}-{stock.location?.level?.code}</Table.Cell>
                                 <Table.Cell>{stock.physical}</Table.Cell>
                                 <Table.Cell>{stock.reserved}</Table.Cell>
                                 <Table.Cell>{stock.transit}</Table.Cell>
                                 <Table.Cell>{stock.free}</Table.Cell>
-                                <Table.Cell>{stock.location.state.name}</Table.Cell>
+                                <Table.Cell>{stock.location?.state?.name}</Table.Cell>
                                 <Table.Cell>
                                     <Tooltip content="Agregar Stock"><Button onClick={() => { AddStockEntryEvent(stock);}} color="green"><FontAwesomeIcon icon={faBoxesStacked} /></Button></Tooltip>
                                     <Tooltip content="Mover Stock"><Button onClick={() => { AddStockEntryEvent(stock);}}><FontAwesomeIcon icon={faDollyBox} /></Button></Tooltip>

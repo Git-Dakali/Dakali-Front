@@ -2,21 +2,18 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { LocationResponse } from './LocationResponse';
 import type { ProductColorResponse } from './ProductColorResponse';
 import type { ProductResponse } from './ProductResponse';
 import type { ResponseGuid } from './ResponseGuid';
+import type { StockResponse } from './StockResponse';
 import type { VariantResponse } from './VariantResponse';
-export type StockResponse = (ResponseGuid & {
+export type SaleDetailResponse = (ResponseGuid & {
     product?: ProductResponse;
     variant?: VariantResponse;
     color?: ProductColorResponse;
-    location?: LocationResponse;
-    physical: number;
-    reserved: number;
-    transit: number;
-    free: number;
-    minimum: number;
-    maximum: number;
+    count: number;
+    price: number;
+    isExtra: boolean;
+    stock?: StockResponse;
 });
 

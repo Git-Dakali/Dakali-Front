@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ColorResponse } from './ColorResponse';
+import type { ProductColorResponse } from './ProductColorResponse';
 import type { PropertyGroupResponse } from './PropertyGroupResponse';
 import type { ResponseGuid } from './ResponseGuid';
 export type VariantResponse = (ResponseGuid & {
@@ -11,7 +11,7 @@ export type VariantResponse = (ResponseGuid & {
     salePrice: number;
     active: boolean;
     sortOrder: number;
-    colorsHex: Array<ColorResponse>;
+    colorsHex: Array<ProductColorResponse>;
     propertyGroups: Array<PropertyGroupResponse>;
 });
 

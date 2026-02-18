@@ -8,9 +8,9 @@ import type { LevelRequest } from './LevelRequest';
 import type { LocationStateRequest } from './LocationStateRequest';
 import type { RequestGuid } from './RequestGuid';
 export type LocationRequest = (RequestGuid & {
-    hallway: HallwayRequest;
-    column: ColumnRequest;
-    level: LevelRequest;
-    state: LocationStateRequest;
+    hallway?: HallwayRequest;
+    column?: ColumnRequest;
+    level?: LevelRequest;
+    state?: LocationStateRequest;
 });
 

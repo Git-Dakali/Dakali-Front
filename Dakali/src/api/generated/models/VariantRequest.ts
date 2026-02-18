@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ColorRequest } from './ColorRequest';
+import type { ProductColorRequest } from './ProductColorRequest';
 import type { PropertyGroupRequest } from './PropertyGroupRequest';
 import type { RequestGuid } from './RequestGuid';
 export type VariantRequest = (RequestGuid & {
@@ -11,7 +11,7 @@ export type VariantRequest = (RequestGuid & {
     salePrice: number;
     active: boolean;
     sortOrder: number;
-    colorsHex: Array<ColorRequest>;
+    colorsHex: Array<ProductColorRequest>;
     propertyGroups: Array<PropertyGroupRequest>;
 });
 

@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { ImageResponse } from './ImageResponse';
 import type { ResponseGuid } from './ResponseGuid';
-export type ColorResponse = (ResponseGuid & {
+export type ProductColorResponse = (ResponseGuid & {
     name: string;
     hex: string;
     sortOrder: number;

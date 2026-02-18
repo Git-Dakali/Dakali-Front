@@ -2,10 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ProvinceResponse } from './ProvinceResponse';
 import type { ResponseGuid } from './ResponseGuid';
-export type StoredFileResponse = (ResponseGuid & {
-    fileName: string;
-    module: string;
-    contentBase64?: string;
+export type CityResponse = (ResponseGuid & {
+    zipCode: string;
+    name: string;
+    province?: ProvinceResponse;
 });
 

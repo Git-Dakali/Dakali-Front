@@ -1,64 +1,64 @@
 import React, {useEffect, useState} from "react";
 import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
 import { PlusCircledIcon, TrashIcon, Pencil1Icon } from "@radix-ui/react-icons"
-import { ErrorModal } from "../../components/ErrorModal";
-import { LevelService, type ColumnRequest, type LevelRequest, type LevelResponse } from "../../api/generated";
-import { LevelModal } from "../Level/LevelModal";
+import { ErrorModal } from "../../../components/ErrorModal";
+import { TaxStatusService, type TaxStatusRequest, type TaxStatusResponse } from "../../../api/generated";
+import { TaxStatusModal } from "./TaxStatusModal";
 
-export const SalesPage: React.FC = () => {
+export const TaxStatusPage: React.FC = () => {
 
-  const [refreshLevels, setRefreshLevels] = useState(false);
-  const [levels, setLevels] = useState<LevelResponse[]>([]);
+  const [refreshTaxStatus, setRefreshTaxStatus] = useState(false);
+  const [taxStatus, setTaxStatus] = useState<TaxStatusResponse[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedLevel, setSelectedLevel] = useState<LevelResponse | null>(null);
+  const [selectedTaxStatus, setSelectedTaxStatus] = useState<TaxStatusResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(()=> {
-    LevelService.levelGetAll().then(data => {setLevels(data)});
-  }, [refreshLevels]);
+    TaxStatusService.taxStatusGetAll().then(data => {setTaxStatus(data)});
+  }, [refreshTaxStatus]);
 
-  const DeleteEvent = (level:LevelRequest) =>{
-    LevelService.levelDelete(level).then(()=>{ setRefreshLevels(!refreshLevels); });
+  const DeleteEvent = (taxStatus:TaxStatusRequest) =>{
+    TaxStatusService.taxStatusDelete(taxStatus).then(()=>{ setRefreshTaxStatus(!refreshTaxStatus); });
   };
 
   const CreateEvent =  () =>{
-    setSelectedLevel(null);
+    setSelectedTaxStatus(null);
     setIsModalOpen(true);
   };
 
-  const EditEvent = (level:LevelResponse) =>{
-    setSelectedLevel(level);
+  const EditEvent = (taxStatus:TaxStatusResponse) =>{
+    setSelectedTaxStatus(taxStatus);
     setIsModalOpen(true);
   };
   
-  const SaveService = async (levelRequest: LevelRequest) => {
+  const SaveService = async (taxStatusRequest: TaxStatusRequest) => {
 
-      if(levelRequest.id == 0)
+      if(taxStatusRequest.id == 0)
       {
-        await LevelService.levelCreate(levelRequest)
+        await TaxStatusService.taxStatusCreate(taxStatusRequest)
         .then(()=>{ 
-          setRefreshLevels(!refreshLevels); 
+          setRefreshTaxStatus(!refreshTaxStatus); 
           setIsModalOpen(false);
         })
         .catch((error) => { 
           console.log({error});
           setErrorMessage(error.body.message);
           setErrorOpen(true);
-          setRefreshLevels(!refreshLevels);
+          setRefreshTaxStatus(!refreshTaxStatus);
         });
 
       }
       else
-        await LevelService.levelUpdate(levelRequest).then(()=>{ 
-          setRefreshLevels(!refreshLevels);
+        await TaxStatusService.taxStatusUpdate(taxStatusRequest).then(()=>{ 
+          setRefreshTaxStatus(!refreshTaxStatus);
           setIsModalOpen(false);
         })
         .catch((error) => { 
           console.log({error});
           setErrorMessage(error.body.message);
           setErrorOpen(true);
-          setRefreshLevels(!refreshLevels);
+          setRefreshTaxStatus(!refreshTaxStatus);
         });
 
     
@@ -66,7 +66,7 @@ export const SalesPage: React.FC = () => {
   return (
     <>
       <Grid columns="1fr 100fr 1fr" gap="1" rows="1fr 10fr 1fr" width="auto" height="100%">
-        <Box gridColumn={"span 2"}><Heading size="8">Nivel</Heading></Box>
+        <Box gridColumn={"span 2"}><Heading size="8">Estado Fiscal</Heading></Box>
         <Box></Box>
         <Box></Box>
         <Box>
@@ -84,14 +84,14 @@ export const SalesPage: React.FC = () => {
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {levels.map(level => {
+                  {taxStatus.map(item => {
                     return (
-                      <Table.Row key={level.guid}>
-                        <Table.Cell>{level.code}</Table.Cell>
-                        <Table.Cell>{level.name}</Table.Cell>
+                      <Table.Row key={item.guid}>
+                        <Table.Cell>{item.code}</Table.Cell>
+                        <Table.Cell>{item.name}</Table.Cell>
                         <Table.Cell>
-                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(level);}}><Pencil1Icon/></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(level as ColumnRequest);}} color="red"><TrashIcon/></Button></Tooltip>
+                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(item);}}><Pencil1Icon/></Button></Tooltip>
+                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(item as TaxStatusRequest);}} color="red"><TrashIcon/></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
                     );
@@ -104,11 +104,11 @@ export const SalesPage: React.FC = () => {
         </Box>
       </Grid>
       {isModalOpen && (
-        <LevelModal
-          key={selectedLevel?.id ?? "new"}  
+        <TaxStatusModal
+          key={selectedTaxStatus?.id ?? "new"}  
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          level={selectedLevel}
+          taxStatus={selectedTaxStatus}
           onSave={SaveService}
         />
       )}

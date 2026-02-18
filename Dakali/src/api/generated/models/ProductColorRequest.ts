@@ -2,11 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ImageRequest } from './ImageRequest';
 import type { RequestGuid } from './RequestGuid';
-import type { StoredFileRequest } from './StoredFileRequest';
-export type ImageRequest = (RequestGuid & {
-    file?: StoredFileRequest;
-    isPrimary: boolean;
+export type ProductColorRequest = (RequestGuid & {
+    name: string;
+    hex: string;
     sortOrder: number;
+    images: Array<ImageRequest>;
 });
 

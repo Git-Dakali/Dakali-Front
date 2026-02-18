@@ -2,12 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ImageRequest } from './ImageRequest';
+import type { ProvinceRequest } from './ProvinceRequest';
 import type { RequestGuid } from './RequestGuid';
-export type ColorRequest = (RequestGuid & {
+export type CityRequest = (RequestGuid & {
+    zipCode: string;
     name: string;
-    hex: string;
-    sortOrder: number;
-    images: Array<ImageRequest>;
+    province?: ProvinceRequest;
 });
 

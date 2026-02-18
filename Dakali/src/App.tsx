@@ -11,7 +11,16 @@ import { LocationStatePage } from "./pages/LocationState/LocationStatePage";
 import { HallwayPage } from "./pages/Hallway/HallwayPage";
 import { ColumnPage } from "./pages/Column/ColumnPage";
 import { LevelPage } from "./pages/Level/LevelPage";
-import { SalesPage } from "./pages/Sales/SalesPage";
+import { ProvincePage } from "./pages/GeographicLocation/Province/ProvincePage";
+import { CityPage } from "./pages/GeographicLocation/City/CityPage";
+import { CountryPage } from "./pages/GeographicLocation/Country/CountryPage";
+import { OriginSalePage } from "./pages/Sales/OriginSale/OriginSalePage";
+import { SalePage } from "./pages/Sales/Sale/SalePage";
+import { TaxStatusPage } from "./pages/Sales/TaxStatus/TaxStatusPage";
+
+import "react-datepicker/dist/react-datepicker.css";
+import 'react-time-picker/dist/TimePicker.css';
+import 'react-clock/dist/Clock.css';
 
 type PageKey =
   | "Default"
@@ -24,7 +33,12 @@ type PageKey =
   | "Hallway"
   | "Column"
   | "Level"
-  | "Sales";
+  | "Sales"
+  | "TaxStatus"
+  | "Country"
+  | "Province"
+  | "City"
+  | "OriginSale";
 
 function App() {
   const [selectedPage, setSelectedPage] = useState<PageKey>("Default");
@@ -50,7 +64,17 @@ function App() {
       case "Level":
         return <LevelPage></LevelPage>;
       case "Sales":
-        return <SalesPage></SalesPage>;
+        return <SalePage></SalePage>;
+      case "Country":
+        return <CountryPage></CountryPage>;
+      case "Province":
+        return <ProvincePage></ProvincePage>;
+      case "City":
+        return <CityPage></CityPage>;
+      case "OriginSale":
+        return <OriginSalePage></OriginSalePage>;
+      case "TaxStatus":
+        return <TaxStatusPage></TaxStatusPage>
       default:
         return <Text>Selecciona una opción del menú.</Text>;
     }

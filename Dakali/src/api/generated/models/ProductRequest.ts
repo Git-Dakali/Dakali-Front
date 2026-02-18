@@ -8,7 +8,7 @@ import type { VariantRequest } from './VariantRequest';
 export type ProductRequest = (RequestGuid & {
     name: string;
     description: string;
-    model: ModelRequest;
+    model?: ModelRequest;
     variants: Array<VariantRequest>;
 });
 

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Checkbox, Tabs, Tooltip, Table } from "@radix-ui/themes";
-import type { ColorRequest, ColorResponse, ImageResponse, ModelResponse, PropertyGroupRequest, PropertyGroupResponse, PropertyResponse, VariantRequest, VariantResponse } from "../../api/generated";
+import type { ProductColorRequest, ProductColorResponse, ImageResponse, ModelResponse, PropertyGroupRequest, PropertyGroupResponse, PropertyResponse, VariantRequest, VariantResponse } from "../../api/generated";
 import { TrashIcon, PlusCircledIcon, FileIcon } from "@radix-ui/react-icons";
 import { PropertyGroupComponent } from "./PropertyGroupComponent";
 import { ImageModal } from "./ImageModal";
@@ -28,7 +28,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
 
   const [colors, setColors] = useState(variant?.colorsHex ?? []);
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState({} as ColorResponse);
+  const [selectedColor, setSelectedColor] = useState({} as ProductColorResponse);
 
   const groups = useMemo<PropertyGroupResponse[]>(() => {
       const listGroupAdd:PropertyGroupResponse[] = [];
@@ -50,11 +50,11 @@ export const VariantModal: React.FC<VariantModalProps> = ({
   }, [model, variant.propertyGroups]);
 
   const handleSubmit = () => {
-    onSave({ id: variant.id, guid: variant?.guid, name, price, salePrice, active, sortOrder, searchString: "", propertyGroups: groups as PropertyGroupRequest[], colorsHex: colors as ColorRequest[]});
+    onSave({ id: variant.id, guid: variant?.guid, name, price, salePrice, active, sortOrder, searchString: "", propertyGroups: groups as PropertyGroupRequest[], colorsHex: colors as ProductColorRequest[]});
     onOpenChange(false);
   };
 
-  const changeColorName = (color: ColorResponse, newName: string) => {
+  const changeColorName = (color: ProductColorResponse, newName: string) => {
     const newColors = colors.filter(() => true); 
     const findColor = newColors.find((c)=> c.guid === color.guid);
 
@@ -64,7 +64,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
     setColors(newColors);
   };
 
-  const changeColorSortOrder = (color: ColorResponse, newSortOrder: number) => {
+  const changeColorSortOrder = (color: ProductColorResponse, newSortOrder: number) => {
     const newColors = colors.filter(() => true); 
     const findColor = newColors.find((c)=> c.guid === color.guid);
 
@@ -74,7 +74,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
     setColors(newColors);
   };
 
-  const changeColorHex = (color: ColorResponse, newHEX: string) => {
+  const changeColorHex = (color: ProductColorResponse, newHEX: string) => {
     const newColors = colors.filter(() => true); 
     const findColor = newColors.find((c)=> c.guid === color.guid);
 
@@ -84,14 +84,14 @@ export const VariantModal: React.FC<VariantModalProps> = ({
   };
 
   const createColorEvent = () => {
-    const newColors:ColorResponse[] = [];
-    const newColor:ColorResponse = { id: 0, name: "Blanco", hex:"#ffffff", sortOrder: 0, guid: crypto.randomUUID(), searchString: "", images: []};
+    const newColors:ProductColorResponse[] = [];
+    const newColor:ProductColorResponse = { id: 0, name: "Blanco", hex:"#ffffff", sortOrder: 0, guid: crypto.randomUUID(), searchString: "", images: []};
     newColors.push(newColor);
     
     setColors(newColors.concat(colors));
   };
 
-  const deleteColorEvent = (color: ColorResponse)=> {
+  const deleteColorEvent = (color: ProductColorResponse)=> {
     setColors(colors.filter((c)=> c.guid !== color.guid));
   };
 

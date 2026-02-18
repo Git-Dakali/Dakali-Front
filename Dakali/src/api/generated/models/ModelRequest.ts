@@ -6,7 +6,7 @@ import type { CategoryRequest } from './CategoryRequest';
 import type { FieldGroupRequest } from './FieldGroupRequest';
 import type { RequestCode } from './RequestCode';
 export type ModelRequest = (RequestCode & {
-    category: CategoryRequest;
+    category?: CategoryRequest;
     fieldGroups: Array<FieldGroupRequest>;
     variantNames: Array<string>;
 });

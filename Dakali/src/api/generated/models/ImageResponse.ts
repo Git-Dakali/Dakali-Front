@@ -5,7 +5,7 @@
 import type { ResponseGuid } from './ResponseGuid';
 import type { StoredFileResponse } from './StoredFileResponse';
 export type ImageResponse = (ResponseGuid & {
-    file: StoredFileResponse;
+    file?: StoredFileResponse;
     isPrimary: boolean;
     sortOrder: number;
 });

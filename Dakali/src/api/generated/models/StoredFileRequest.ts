@@ -6,6 +6,6 @@ import type { RequestGuid } from './RequestGuid';
 export type StoredFileRequest = (RequestGuid & {
     fileName: string;
     module: string;
-    contentBase64: string;
+    contentBase64?: string;
 });
 
