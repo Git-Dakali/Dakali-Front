@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Response } from './Response';
-export type ResponseGuid = (Response & {
-    guid: string;
-    searchString: string;
+import type { SaleResponse } from './SaleResponse';
+export type RoadMapSaleResponse = (Response & {
+    sale: SaleResponse;
+    sortOrder: number;
 });
 

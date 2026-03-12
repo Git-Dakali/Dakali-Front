@@ -35,6 +35,22 @@ export class SaleService {
         });
     }
     /**
+     * @param number
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleGetByNumber(
+        number?: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/Sale/GetByNumber',
+            query: {
+                'number': number,
+            },
+        });
+    }
+    /**
      * @param data
      * @returns SaleResponse
      * @throws ApiError

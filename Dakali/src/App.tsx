@@ -21,6 +21,8 @@ import { TaxStatusPage } from "./pages/Sales/TaxStatus/TaxStatusPage";
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
+import { DriverPage } from "./pages/RoadMaps/Driver/DriverPage";
+import { RoadMapPage } from "./pages/RoadMaps/RoadMap/RoadMapPage";
 
 type PageKey =
   | "Default"
@@ -38,7 +40,9 @@ type PageKey =
   | "Country"
   | "Province"
   | "City"
-  | "OriginSale";
+  | "OriginSale"
+  | "Driver"
+  | "RoadMap";
 
 function App() {
   const [selectedPage, setSelectedPage] = useState<PageKey>("Default");
@@ -75,6 +79,10 @@ function App() {
         return <OriginSalePage></OriginSalePage>;
       case "TaxStatus":
         return <TaxStatusPage></TaxStatusPage>
+      case "Driver":
+        return <DriverPage></DriverPage>
+      case "RoadMap":
+        return <RoadMapPage></RoadMapPage>
       default:
         return <Text>Selecciona una opción del menú.</Text>;
     }

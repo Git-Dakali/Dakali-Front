@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Request } from './Request';
-export type RequestGuid = (Request & {
-    guid: string;
-    searchString: string;
+import type { SaleRequest } from './SaleRequest';
+export type RoadMapSaleRequest = (Request & {
+    sale: SaleRequest;
+    sortOrder: number;
 });
 

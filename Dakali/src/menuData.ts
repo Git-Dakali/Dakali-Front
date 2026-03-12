@@ -111,5 +111,21 @@ export const menuData: MenuItem[] = [
         pageKey: "Sales",
       }
     ],
+  },
+  {
+    id: "menuRuteo",
+    label: "Ruteo",
+    children: [
+      {
+        id: "Driver",
+        label: "Chofer",
+        pageKey: "Driver",
+      },
+      {
+        id: "RoadMap",
+        label: "Hoja de Ruta",
+        pageKey: "RoadMap",
+      }
+    ],
   }
 ];

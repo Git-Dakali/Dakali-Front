@@ -366,11 +366,11 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                 <DatePicker selected={deliveryDate} dateFormat="dd-MM-yyyy" onChange={(value:Date | null) => setDeliveryDate(value)} />
             </Box>
             <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Hora Inicio Entrega<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
+                <Text size="2" mb="1" style={{ display: "block" }}>Hora Inicio<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
                 <TimePicker value={deliveryStartTime} format="HH:mm" onChange={(time:string|null) => setDeliveryStartTime(time)} disableClock/>
             </Box>
             <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Hora Fin Entrega<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
+                <Text size="2" mb="1" style={{ display: "block" }}>Hora Fin<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
                 <TimePicker value={deliveryEndTime} format="HH:mm" onChange={(time:string|null) => setDeliveryEndTime(time)} disableClock/>
             </Box>
             <Box>
@@ -379,7 +379,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             <Box></Box>
             <Box></Box>
             <Box gridColumn={"span 7"}>
-                <Text size="2" mb="1" style={{ display: "block" }}>Observacion<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
+                <Text size="2" mb="1" style={{ display: "block" }}>Observacion</Text>
                 <TextArea rows={4} value={observation} onChange={(e) => setObservation(e.target.value)}/>
             </Box>
             <Box gridColumn={"span 10"}>

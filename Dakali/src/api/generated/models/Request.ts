@@ -2,9 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Request } from './Request';
-export type RequestGuid = (Request & {
-    guid: string;
-    searchString: string;
-});
+export type Request = {
+    id: number;
+};
 
