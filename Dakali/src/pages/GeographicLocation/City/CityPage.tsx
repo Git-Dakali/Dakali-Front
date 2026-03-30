@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
-import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
+import { Grid, Box, Table, Button, Flex, Tooltip, Heading, TextField } from "@radix-ui/themes";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faTrash, faPlusCircle, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { CityService } from "../../../api/generated/services/CityService"
 import { CityModal } from "./CityModal"
 import { ErrorModal } from "../../../components/ErrorModal";
 import type { CityRequest, CityResponse } from "../../../api/generated";
+import { Pagination } from "../../../components/Pagination";
 
 export const CityPage: React.FC = () => {
 
@@ -15,10 +16,21 @@ export const CityPage: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<CityResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [filterSearchString, setFilterSearchString] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const RunFilter = ()=>{
+    CityService.cityGetPage({page, countRows: rows, searchString: filterSearchString}).then((data) => {
+      setTotalRows(data.count);
+      setCities(data.values);
+    });
+  };
 
   useEffect(()=> {
-    CityService.cityGetAll().then(data => {setCities(data)});
-  }, [refreshCities]);
+    RunFilter()
+  }, [page, rows, refreshCities]);
 
   const DeleteEvent = (city:CityRequest) =>{
     CityService.cityDelete(city).then(()=>{ setRefreshCities(!refreshCities); });
@@ -64,6 +76,7 @@ export const CityPage: React.FC = () => {
           setRefreshCities(!refreshCities);
         });
   };
+
   return (
     <>
       <Grid columns="1fr 100fr 1fr" gap="1" rows="1fr 10fr 1fr" width="auto" height="100%">
@@ -71,11 +84,17 @@ export const CityPage: React.FC = () => {
         <Box></Box>
         <Box></Box>
         <Box>
-          <Grid rows="auto 1fr" columns="1" height={"100%"} gap={"2"}>
+          <Grid rows="auto 1fr" columns="10fr 1fr 2fr" height={"100%"} gap={"2"}>
+            <Box>
+              <TextField.Root placeholder="Filtro libre" value={filterSearchString} onChange={(e) => setFilterSearchString(e.target.value)}/>
+            </Box>
+            <Flex justify={"start"}>
+              <Button onClick={() => { if(page !== 1) setPage(1); else RunFilter(); }}><FontAwesomeIcon icon={faFilter} /></Button>
+            </Flex>
             <Flex justify={"end"}>
               <Tooltip content="Crear"><Button onClick={CreateEvent}><FontAwesomeIcon icon={faPlusCircle} /></Button></Tooltip>
             </Flex>
-            <Box>
+            <Box gridColumn={"span 3"}>
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
@@ -103,6 +122,7 @@ export const CityPage: React.FC = () => {
                   })}
                 </Table.Body>
               </Table.Root>
+              <Pagination currentPage={page} rows={rows} totalRows={totalRows} onChangePage={setPage} onChangeRows={setRows}/>
             </Box>
           </Grid>
           

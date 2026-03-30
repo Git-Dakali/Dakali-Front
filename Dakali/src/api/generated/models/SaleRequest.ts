@@ -28,6 +28,8 @@ export type SaleRequest = (RequestGuid & {
     discounts: number;
     totalPrice: number;
     shippingPrice: number;
+    latitude: number;
+    longitude: number;
     taxStatus?: TaxStatusRequest;
     originSale?: OriginSaleRequest;
     pdfInvoice?: StoredFileRequest;

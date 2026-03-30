@@ -21,8 +21,10 @@ import { TaxStatusPage } from "./pages/Sales/TaxStatus/TaxStatusPage";
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
+import './print.css';
 import { DriverPage } from "./pages/RoadMaps/Driver/DriverPage";
 import { RoadMapPage } from "./pages/RoadMaps/RoadMap/RoadMapPage";
+import { LoadScript } from "@react-google-maps/api";
 
 type PageKey =
   | "Default"
@@ -113,7 +115,9 @@ function App() {
       </Box>
 
       <Box flexGrow="1" p="4">
-        {renderPage()}
+        <LoadScript googleMapsApiKey={"AIzaSyBG3yASKls__-_N-D3qfKP1j6Ow0q3xKJQ"} libraries={["places"]}>
+                {renderPage()}
+        </LoadScript>
       </Box>
     </Flex>
   );

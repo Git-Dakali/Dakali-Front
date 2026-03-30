@@ -2,9 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { CityFilter } from '../models/CityFilter';
 import type { CityRequest } from '../models/CityRequest';
 import type { CityResponse } from '../models/CityResponse';
 import type { ProvinceRequest } from '../models/ProvinceRequest';
+import type { ResultPageResponseOfCityResponse } from '../models/ResultPageResponseOfCityResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -17,6 +19,20 @@ export class CityService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/GetAll',
+        });
+    }
+    /**
+     * @param cityFilter
+     * @returns ResultPageResponseOfCityResponse
+     * @throws ApiError
+     */
+    public static cityGetPage(
+        cityFilter: CityFilter,
+    ): CancelablePromise<ResultPageResponseOfCityResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/GetPage',
+            body: cityFilter,
         });
     }
     /**

@@ -1,0 +1,33 @@
+/* ===== ETIQUETAS ===== */
+@media print {
+    .etiquetas-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3mm;
+    }
+    .etiqueta {
+        width: 50mm;
+        height: 30mm;
+        border: 1px solid black;
+        padding: 2mm;
+        box-sizing: border-box;
+        font-size: 12px;
+        page-break-inside: avoid;
+    }
+}
+
+/* ===== A4 ===== */
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+.Print-A4 {
+  width: 100%;
+  font-size: 14px;
+}
+.page-break {
+  page-break-inside: avoid;
+}
+
+

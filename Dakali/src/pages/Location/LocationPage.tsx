@@ -90,10 +90,10 @@ export const LocationPage: React.FC = () => {
                   {locations.map(location => {
                     return (
                       <Table.Row key={location.guid}>
-                        <Table.Cell>{location.hallway.name}</Table.Cell>
-                        <Table.Cell>{location.column.name}</Table.Cell>
-                        <Table.Cell>{location.level.name}</Table.Cell>
-                        <Table.Cell>{location.state.name}</Table.Cell>
+                        <Table.Cell>{location.hallway?.name}</Table.Cell>
+                        <Table.Cell>{location.column?.name}</Table.Cell>
+                        <Table.Cell>{location.level?.name}</Table.Cell>
+                        <Table.Cell>{location.state?.name}</Table.Cell>
                         <Table.Cell>
                           <Tooltip content="Editar"><Button onClick={() => { EditEvent(location);}}><Pencil1Icon/></Button></Tooltip>
                           <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(location);}} color="red"><TrashIcon/></Button></Tooltip>

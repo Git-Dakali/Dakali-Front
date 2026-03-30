@@ -28,6 +28,8 @@ export type SaleResponse = (ResponseGuid & {
     discounts: number;
     totalPrice: number;
     shippingPrice: number;
+    latitude: number;
+    longitude: number;
     taxStatus?: TaxStatusResponse;
     originSale?: OriginSaleResponse;
     pdfInvoice?: StoredFileResponse;

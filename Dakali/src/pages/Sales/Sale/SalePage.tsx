@@ -1,23 +1,37 @@
 import React, {useEffect, useState} from "react";
-import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
+import { Grid, Box, Table, Button, Flex, Tooltip, Heading, TextField } from "@radix-ui/themes";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faTrash, faPlusCircle, faMapMarkerAlt, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { ErrorModal } from "../../../components/ErrorModal";
 import { SaleService, type SaleRequest, type SaleResponse } from "../../../api/generated";
 import { SaleModal } from "./SaleModal";
+import { LocationGoogleMapModal } from "./LocationGoogleMapModal";
+import { Pagination } from "../../../components/Pagination";
 
 export const SalePage: React.FC = () => {
 
   const [refreshSales, setRefreshSales] = useState(false);
   const [sales, setSales] = useState<SaleResponse[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLocationMapModalOpen, setIsLocationMapModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<SaleResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [filterSearchString, setFilterSearchString] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const RunFilter = ()=>{
+    SaleService.saleGetPage({page, countRows: rows, searchString: filterSearchString, skus: []}).then((data) => {
+      setTotalRows(data.count);
+      setSales(data.values);
+    });
+  };
 
   useEffect(()=> {
-    SaleService.saleGetAll().then(data => {setSales(data)});
-  }, [refreshSales]);
+    RunFilter()
+  }, [page, rows, refreshSales]);
 
   const DeleteEvent = (sale:SaleRequest) =>{
     SaleService.saleDelete(sale).then(()=>{ setRefreshSales(!refreshSales); });
@@ -32,7 +46,27 @@ export const SalePage: React.FC = () => {
     setSelectedSale(sale);
     setIsModalOpen(true);
   };
+
+  const LocationMapEvent = (sale:SaleResponse) =>{
+    setSelectedSale(sale);
+    setIsLocationMapModalOpen(true);
+  };
   
+  const SaveLocationService = (saleId:number, latitude:number, longitude:number) => {
+    SaleService.saleAddLocation(saleId, longitude, latitude)
+    .then(()=>{ 
+      setRefreshSales(!refreshSales); 
+      setIsLocationMapModalOpen(false);
+    })
+    .catch((error) => { 
+      console.log({error});
+      setErrorMessage(error.body.message);
+      setErrorOpen(true);
+      setRefreshSales(!refreshSales);
+    });
+  };
+
+
   const SaveService = async (saleRequest: SaleRequest) => {
 
       if(saleRequest.id == 0)
@@ -71,11 +105,17 @@ export const SalePage: React.FC = () => {
         <Box></Box>
         <Box></Box>
         <Box>
-          <Grid rows="auto 1fr" columns="1" height={"100%"} gap={"2"}>
+          <Grid rows="auto 1fr" columns="10fr 1fr 2fr" height={"100%"} gap={"2"}>
+            <Box>
+              <TextField.Root placeholder="Filtro libre" value={filterSearchString} onChange={(e) => setFilterSearchString(e.target.value)}/>
+            </Box>
+            <Flex justify={"start"}>
+              <Button onClick={() => { if(page !== 1) setPage(1); else RunFilter(); }}><FontAwesomeIcon icon={faFilter} /></Button>
+            </Flex>
             <Flex justify={"end"}>
               <Tooltip content="Crear"><Button onClick={CreateEvent}><FontAwesomeIcon icon={faPlusCircle} /></Button></Tooltip>
             </Flex>
-            <Box>
+            <Box gridColumn={"span 3"}>
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
@@ -104,6 +144,7 @@ export const SalePage: React.FC = () => {
                         <Table.Cell>{sale.city?.zipCode??""}-{sale.city?.name??""}</Table.Cell>
                         <Table.Cell>
                           <Tooltip content="Editar"><Button onClick={() => { EditEvent(sale);}}><FontAwesomeIcon icon={faPencil} /></Button></Tooltip>
+                          <Tooltip content="Localizar"><Button onClick={() => { LocationMapEvent(sale);}}><FontAwesomeIcon icon={faMapMarkerAlt} /></Button></Tooltip>
                           <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(sale as SaleRequest);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
@@ -111,6 +152,7 @@ export const SalePage: React.FC = () => {
                   })}
                 </Table.Body>
               </Table.Root>
+              <Pagination currentPage={page} rows={rows} totalRows={totalRows} onChangePage={setPage} onChangeRows={setRows}/>
             </Box>
           </Grid>
           
@@ -123,6 +165,15 @@ export const SalePage: React.FC = () => {
           onOpenChange={setIsModalOpen}
           sale={selectedSale}
           onSave={SaveService}
+        />
+      )}
+      {isLocationMapModalOpen && (
+        <LocationGoogleMapModal
+          key={selectedSale?.id ?? "new"}  
+          open={isLocationMapModalOpen}
+          onOpenChange={setIsLocationMapModalOpen}
+          sale={selectedSale as SaleRequest}
+          onSave={SaveLocationService}
         />
       )}
       <ErrorModal

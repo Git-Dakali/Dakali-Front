@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ResultPageResponseOfSaleResponse } from '../models/ResultPageResponseOfSaleResponse';
+import type { SaleFilter } from '../models/SaleFilter';
 import type { SaleRequest } from '../models/SaleRequest';
 import type { SaleResponse } from '../models/SaleResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -16,6 +18,20 @@ export class SaleService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/Sale/GetAll',
+        });
+    }
+    /**
+     * @param cityFilter
+     * @returns ResultPageResponseOfSaleResponse
+     * @throws ApiError
+     */
+    public static saleGetPage(
+        cityFilter: SaleFilter,
+    ): CancelablePromise<ResultPageResponseOfSaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/GetPage',
+            body: cityFilter,
         });
     }
     /**
@@ -76,6 +92,28 @@ export class SaleService {
             method: 'POST',
             url: '/Sale/Update',
             body: data,
+        });
+    }
+    /**
+     * @param saleId
+     * @param longitude
+     * @param latitude
+     * @returns any
+     * @throws ApiError
+     */
+    public static saleAddLocation(
+        saleId?: number,
+        longitude?: number,
+        latitude?: number,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/AddLocation',
+            query: {
+                'SaleId': saleId,
+                'longitude': longitude,
+                'latitude': latitude,
+            },
         });
     }
     /**
