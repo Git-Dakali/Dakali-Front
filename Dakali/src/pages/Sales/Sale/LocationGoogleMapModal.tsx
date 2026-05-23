@@ -64,8 +64,18 @@ export const LocationGoogleMapModal: React.FC<LocationGoogleMapModalProps> = ({
     setSearchAddress(e.target.value);
   };
 
+  const handleDragEnd = (e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const newPos = {
+        lat: e.latLng.lat(),
+        lng: e.latLng.lng()
+      };
+      setMarkerLocation(newPos);
+    }
+  };
+
   const title = "Localizacion";
-console.log(markerLocation);
+  
   return (
     <>
       
@@ -121,7 +131,7 @@ console.log(markerLocation);
             <Box gridColumn={"span 1"}></Box>
             <Box gridColumn={"span 2"}>
                 <GoogleMap mapContainerStyle={{width: "100%", height: "30vh"}} center={markerLocation} zoom={zoom}>
-                  <Marker position={markerLocation} onClick={() => setShowMarkerInfo(true)} />
+                  <Marker position={markerLocation} draggable={true} onDragEnd={handleDragEnd} onClick={() => setShowMarkerInfo(true)} />
                   
                   {showMarkerInfo && (
                       <InfoWindow position={{lat: markerLocation.lat, lng:markerLocation.lng}} onCloseClick={() => setShowMarkerInfo(false)} options={{pixelOffset: new window.google.maps.Size(0, -40)}}>

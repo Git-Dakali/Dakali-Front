@@ -1,23 +1,38 @@
 import React, {useEffect, useState} from "react";
-import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
-import { PlusCircledIcon, TrashIcon, Pencil1Icon } from "@radix-ui/react-icons"
+import { Grid, Box, Table, Button, Flex, Tooltip, Heading, TextField } from "@radix-ui/themes";
 import { ProductService } from "../../api/generated/services/ProductService"
 import { ErrorModal } from "../../components/ErrorModal";
 import type { ProductRequest, ProductResponse } from "../../api/generated";
 import { ProductModal } from "./ProductModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilter, faPencil, faPlusCircle, faPrint, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Pagination } from "../../components/Pagination";
+import { ProductPrintModal } from "./ProductPrintModal";
 
 export const ProductPage: React.FC = () => {
 
   const [refreshProducts, setRefreshProducts] = useState(false);
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [filterSearchString, setFilterSearchString] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
+  const RunFilter = ()=>{
+    ProductService.productGetPage({page, countRows: rows, searchString: filterSearchString }).then((data) => {
+      setTotalRows(data.count);
+      setProducts(data.values);
+    });
+  };
+  
   useEffect(()=> {
-    ProductService.productGetAll().then(data => {setProducts(data)});
-  }, [refreshProducts]);
+      RunFilter()
+    }, [page, rows, refreshProducts]);
 
   const DeleteEvent = (product:ProductResponse) =>{
     ProductService.productDelete(product as ProductRequest).then(()=>{ setRefreshProducts(!refreshProducts); });
@@ -74,11 +89,17 @@ export const ProductPage: React.FC = () => {
         <Box></Box>
         <Box></Box>
         <Box>
-          <Grid rows="auto 1fr" columns="1" height={"100%"} gap={"2"}>
-            <Flex justify={"end"}>
-              <Tooltip content="Crear"><Button onClick={CreateEvent}><PlusCircledIcon/></Button></Tooltip>
-            </Flex>
+          <Grid rows="auto 1fr" columns="10fr 1fr 2fr" height={"100%"} gap={"2"}>
             <Box>
+              <TextField.Root placeholder="Filtro libre" value={filterSearchString} onChange={(e) => setFilterSearchString(e.target.value)}/>
+            </Box>
+            <Flex justify={"start"}>
+              <Button onClick={() => { if(page !== 1) setPage(1); else RunFilter(); }}><FontAwesomeIcon icon={faFilter} /></Button>
+            </Flex>
+            <Flex justify={"end"}>
+              <Tooltip content="Crear"><Button onClick={CreateEvent}><FontAwesomeIcon icon={faPlusCircle} /></Button></Tooltip>
+            </Flex>
+            <Box gridColumn={"span 3"}>
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
@@ -93,17 +114,19 @@ export const ProductPage: React.FC = () => {
                     return (
                       <Table.Row key={product.id}>
                         <Table.Cell>{product.id}</Table.Cell>
-                        <Table.Cell>{product.model.code}</Table.Cell>
+                        <Table.Cell>{product?.model?.code}</Table.Cell>
                         <Table.Cell>{product.name}</Table.Cell>
                         <Table.Cell>
-                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(product);}}><Pencil1Icon/></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(product);}} color="red"><TrashIcon/></Button></Tooltip>
+                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(product);}}><FontAwesomeIcon icon={faPencil} /></Button></Tooltip>
+                          <Tooltip content="Imprimir"><Button color="blue" onClick={() => { setSelectedProduct(product); setIsPrintModalOpen(true);}}><FontAwesomeIcon icon={faPrint} /></Button></Tooltip>
+                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(product);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
                         </Table.Cell>
                       </Table.Row>
                     );
                   })}
                 </Table.Body>
               </Table.Root>
+              <Pagination currentPage={page} rows={rows} totalRows={totalRows} onChangePage={setPage} onChangeRows={setRows}/>
             </Box>
           </Grid>
           
@@ -116,6 +139,14 @@ export const ProductPage: React.FC = () => {
           onOpenChange={setIsModalOpen}
           product={selectedProduct}
           onSave={SaveService}
+        />
+      )}
+      {isPrintModalOpen && (
+        <ProductPrintModal
+          key={selectedProduct?.id ?? "new"}  
+          open={isPrintModalOpen}
+          onOpenChange={setIsPrintModalOpen}
+          product={selectedProduct as ProductResponse}
         />
       )}
       <ErrorModal

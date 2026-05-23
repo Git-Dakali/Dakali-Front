@@ -22,10 +22,10 @@ export const LocationModal: React.FC<LocationModalProps> = ({
     const [states, setStates] = useState<LocationStateResponse[]>([]);
     
     
-    const [selectHallway, setSelectHallway] = useState(location?.hallway.code ?? "");
-    const [selectColumn, setSelectColumn] = useState(location?.column.code ?? "");
-    const [selectLevel, setSelectLevel] = useState(location?.level.code ?? "");
-    const [selectState, setSelectState] = useState(location?.state.code ?? "");
+    const [selectHallway, setSelectHallway] = useState(location?.hallway?.code ?? "");
+    const [selectColumn, setSelectColumn] = useState(location?.column?.code ?? "");
+    const [selectLevel, setSelectLevel] = useState(location?.level?.code ?? "");
+    const [selectState, setSelectState] = useState(location?.state?.code ?? "");
 
     useEffect(()=>{
         HallwayService.hallwayGetAll().then((data) => { setHallways(data); });

@@ -93,7 +93,7 @@ export const ModelPage: React.FC = () => {
                             <Table.Row key={model.id}>
                                 <Table.Cell>{model.id}</Table.Cell>
                                 <Table.Cell>{model.code}</Table.Cell>
-                                <Table.Cell>{model.category.code} - {model.category.name}</Table.Cell>
+                                <Table.Cell>{model.category?.code} - {model.category?.name}</Table.Cell>
                                 <Table.Cell>
                                     <Tooltip content="Editar"><Button onClick={() => { EditEvent(model);}}><Pencil1Icon/></Button></Tooltip>
                                     <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(model);}} color="red"><TrashIcon/></Button></Tooltip>

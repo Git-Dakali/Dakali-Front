@@ -80,7 +80,7 @@ export const RoadMapModal: React.FC<RoadMapModalProps> = ({
     <>
       
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content minWidth="50%" onInteractOutside={(e) => e.preventDefault()}>
+      <Dialog.Content minWidth="70%" onInteractOutside={(e) => e.preventDefault()}>
         <Dialog.Title>{title}</Dialog.Title>
         <Grid columns="1fr 1fr 1fr 1fr 1fr">
             <Box></Box>

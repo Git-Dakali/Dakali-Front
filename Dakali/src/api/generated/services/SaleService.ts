@@ -130,4 +130,172 @@ export class SaleService {
             body: data,
         });
     }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleConfirm(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Confirm',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static salePrepared(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Prepared',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static salePendingDispatch(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/PendingDispatch',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleOnTrip(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/OnTrip',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleDeliver(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Deliver',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static salePartialDeliver(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/PartialDeliver',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleReject(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Reject',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleCancel(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Cancel',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleReturn(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Return',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleStored(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Stored',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static salePendingBilling(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/PendingBilling',
+            body: saleId,
+        });
+    }
+    /**
+     * @param saleId
+     * @returns SaleResponse
+     * @throws ApiError
+     */
+    public static saleInvoiced(
+        saleId: number,
+    ): CancelablePromise<SaleResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/Invoiced',
+            body: saleId,
+        });
+    }
 }

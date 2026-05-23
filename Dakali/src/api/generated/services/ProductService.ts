@@ -2,8 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ProductFilter } from '../models/ProductFilter';
 import type { ProductRequest } from '../models/ProductRequest';
 import type { ProductResponse } from '../models/ProductResponse';
+import type { ResultPageResponseOfProductResponse } from '../models/ResultPageResponseOfProductResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -16,6 +18,20 @@ export class ProductService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/Product/GetAll',
+        });
+    }
+    /**
+     * @param cityFilter
+     * @returns ResultPageResponseOfProductResponse
+     * @throws ApiError
+     */
+    public static productGetPage(
+        cityFilter: ProductFilter,
+    ): CancelablePromise<ResultPageResponseOfProductResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Product/GetPage',
+            body: cityFilter,
         });
     }
     /**

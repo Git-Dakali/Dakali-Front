@@ -22,7 +22,7 @@ export const ProductModal : React.FC<ProductModalProps> = ({
   const [description, setDescription] = useState(productPersisted?.description ?? "");
 
   const [models, setModels] = useState<ModelResponse[]>([]);
-  const [selectedModelCode, setSelectedModelCode] = useState<string>(productPersisted?.model.code??"");
+  const [selectedModelCode, setSelectedModelCode] = useState<string>(productPersisted?.model?.code??"");
 
   const [isModalVariantOpen, setIsModalVariantOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<VariantResponse | null>(null);
@@ -38,7 +38,7 @@ export const ProductModal : React.FC<ProductModalProps> = ({
       {
         ProductService.productGet(product?.id).then((data) =>{
           setProductPersisted(data);
-          setSelectedModelCode(data.model.code);
+          setSelectedModelCode(data?.model?.code?? "");
         });
       }
     });

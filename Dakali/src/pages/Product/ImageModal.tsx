@@ -55,7 +55,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
 
     const selectedFiles = Array.from(fileList);
     const newImagesPromise = selectedFiles.reduce((primiseImages, file) => {
-        const existImage = newImages.some(x => x.file.fileName.toUpperCase() === file.name.toUpperCase());
+        const existImage = newImages.some(x => x.file?.fileName?.toUpperCase() === file.name.toUpperCase());
 
         if(!existImage)
         {
@@ -131,10 +131,10 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                     {images.map(image => {
                         return (
                         <Table.Row key={image.guid}>
-                            <Table.Cell>{image.file.fileName}</Table.Cell>
+                            <Table.Cell>{image.file?.fileName}</Table.Cell>
                             <Table.Cell><TextField.Root value={image.sortOrder} onChange={(e) => changeSortOrderEvent(image, Number.parseInt(e.target.value))}/></Table.Cell>
                             <Table.Cell><Checkbox defaultChecked checked={image.isPrimary} onCheckedChange={() => changeIsPrimaryImageEvent(image)} /></Table.Cell>
-                            <Table.Cell><img src={image.file.contentBase64} alt={image.file.fileName} style={{ height: "45px" }}/></Table.Cell>
+                            <Table.Cell><img src={image.file?.contentBase64} alt={image.file?.fileName} style={{ height: "45px" }}/></Table.Cell>
                             <Table.Cell><Tooltip content="Eliminar"><Button onClick={() => { deleteImageEvent(image);}} color="red"><TrashIcon/></Button></Tooltip></Table.Cell>
                         </Table.Row>
                         );

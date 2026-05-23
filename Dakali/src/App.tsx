@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Flex, Text, ScrollArea } from "@radix-ui/themes";
 import { MenuTreeRadix } from "./components/MenuTree";
 import { menuData } from "./menuData";
@@ -25,6 +25,7 @@ import './print.css';
 import { DriverPage } from "./pages/RoadMaps/Driver/DriverPage";
 import { RoadMapPage } from "./pages/RoadMaps/RoadMap/RoadMapPage";
 import { LoadScript } from "@react-google-maps/api";
+import {config} from "./config"
 
 type PageKey =
   | "Default"
@@ -115,7 +116,7 @@ function App() {
       </Box>
 
       <Box flexGrow="1" p="4">
-        <LoadScript googleMapsApiKey={"AIzaSyBG3yASKls__-_N-D3qfKP1j6Ow0q3xKJQ"} libraries={["places"]}>
+        <LoadScript googleMapsApiKey={config.apiKeyGoogleMap} libraries={["places"]}>
                 {renderPage()}
         </LoadScript>
       </Box>

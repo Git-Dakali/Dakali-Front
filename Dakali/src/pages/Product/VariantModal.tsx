@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Checkbox, Tabs, Tooltip, Table } from "@radix-ui/themes";
 import type { ProductColorRequest, ProductColorResponse, ImageResponse, ModelResponse, PropertyGroupRequest, PropertyGroupResponse, PropertyResponse, VariantRequest, VariantResponse } from "../../api/generated";
-import { TrashIcon, PlusCircledIcon, FileIcon } from "@radix-ui/react-icons";
+import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { PropertyGroupComponent } from "./PropertyGroupComponent";
 import { ImageModal } from "./ImageModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFile, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 type VariantModalProps = {
   open: boolean;
@@ -83,9 +85,18 @@ export const VariantModal: React.FC<VariantModalProps> = ({
     setColors(newColors);
   };
 
+  const changeColorSKU = (color: ProductColorResponse, sku: string) => {
+    const newColors = colors.filter(() => true); 
+    const findColor = newColors.find((c)=> c.guid === color.guid);
+
+    if(findColor)
+        findColor.sku = sku;
+    setColors(newColors);
+  };
+
   const createColorEvent = () => {
     const newColors:ProductColorResponse[] = [];
-    const newColor:ProductColorResponse = { id: 0, name: "Blanco", hex:"#ffffff", sortOrder: 0, guid: crypto.randomUUID(), searchString: "", images: []};
+    const newColor:ProductColorResponse = { id: 0, name: "Blanco", hex:"#ffffff", sortOrder: 0, guid: crypto.randomUUID(), searchString: "", sku: "", images: []};
     newColors.push(newColor);
     
     setColors(newColors.concat(colors));
@@ -186,8 +197,9 @@ export const VariantModal: React.FC<VariantModalProps> = ({
                               <Table.Root variant="surface" size={"1"}>
                                   <Table.Header>
                                   <Table.Row>
-                                      <Table.ColumnHeaderCell width={"55%"}>Nombre</Table.ColumnHeaderCell>
+                                      <Table.ColumnHeaderCell width={"40%"}>Nombre</Table.ColumnHeaderCell>
                                       <Table.ColumnHeaderCell width={"15%"}>Color</Table.ColumnHeaderCell>
+                                      <Table.ColumnHeaderCell width={"15%"}>SKU</Table.ColumnHeaderCell>
                                       <Table.ColumnHeaderCell width={"15%"}>Orden</Table.ColumnHeaderCell>
                                       <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                                   </Table.Row>
@@ -198,10 +210,11 @@ export const VariantModal: React.FC<VariantModalProps> = ({
                                       <Table.Row key={color.guid}>
                                           <Table.Cell><TextField.Root value={color.name} onChange={(e) => changeColorName(color, e.target.value)}/></Table.Cell>
                                           <Table.Cell><input type="color" value={color.hex} onChange={(e) => changeColorHex(color, e.target.value)} /></Table.Cell>
+                                          <Table.Cell><TextField.Root value={color.sku} onChange={(e) => changeColorSKU(color, e.target.value)}/></Table.Cell>
                                           <Table.Cell><TextField.Root value={color.sortOrder} onChange={(e) => changeColorSortOrder(color, Number.parseInt(e.target.value))}/></Table.Cell>
                                           <Table.Cell>
-                                            <Tooltip content="Eliminar"><Button onClick={() => { deleteColorEvent(color);}} color="red"><TrashIcon/></Button></Tooltip>
-                                            <Tooltip content="Ver Imagenes"><Button onClick={() => { setSelectedColor(color); setIsColorModalOpen(true)}} color="blue"><FileIcon/></Button></Tooltip>
+                                            <Tooltip content="Eliminar"><Button onClick={() => { deleteColorEvent(color);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
+                                            <Tooltip content="Ver Imagenes"><Button onClick={() => { setSelectedColor(color); setIsColorModalOpen(true)}} color="blue"><FontAwesomeIcon icon={faFile} /></Button></Tooltip>
                                           </Table.Cell>
                                       </Table.Row>
                                       );

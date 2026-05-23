@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Flex, Text, Box, Grid, Heading, Card, ScrollArea, TextField, Tooltip } from "@radix-ui/themes";
 import { RoadMapSaleService, RoadMapService, SaleService, type RoadMapRequest, type RoadMapResponse, type RoadMapSaleRequest, type RoadMapSaleResponse, type SaleResponse } from "../../../api/generated";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAsterisk, faMapMarkerAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faAsterisk, faCopy, faMapMarkerAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { DirectionsRenderer, GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
 
 
@@ -51,6 +51,12 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
   useEffect(() => {
     RoadMapSaleService.roadMapSaleGetByRoadMap(roadMap?.id ?? 0).then(data => setSales(data.sort((a,b) => a.sortOrder - b.sortOrder)));
   }, [refreshSales]);
+
+  const copyToClipboard = async (sale : RoadMapSaleResponse) => {
+    const message = `https://www.google.com/maps?q=${sale.sale.latitude},${sale.sale.longitude} \n${sale.sale.city?.name??""}\n${sale.sale.address} ${sale.sale.floor??""} ${sale.sale.apartment??""}\n${sale.sale.phone}\n$${sale.sale.totalPrice}\n${sale.sortOrder}`;
+    await navigator.clipboard.writeText(message);
+  };
+
 
   const UpdateSalesDirection = (directionsGoogle: google.maps.DirectionsResult | null) => {
     if(directionsGoogle === null)
@@ -194,8 +200,8 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
       colorSale = "#FFDCD7";
     return (
       <Box >
-          <Card ref={setElement} data-show={isDragging || undefined} style={{backgroundColor: colorSale}}>
-              <Grid columns={"1fr 5fr 1fr"} onClick={() => {setSelectedSale(sale);}}>
+          <Card ref={roadMap.state === "Creado" ? setElement : () => {}} data-show={isDragging || undefined} style={{backgroundColor: colorSale}}>
+              <Grid columns={"1fr 5fr 2fr"} onClick={() => {setSelectedSale(sale);}}>
                   <Box ref={handleRef}>
                     <Text as="div" size="6" weight="bold">{(index + 1)}</Text>
                   </Box>
@@ -205,8 +211,11 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
                       <Text as="div" size="2" color="gray">{sale.sale.address} {sale.sale.floor} {sale.sale.apartment}</Text> 
                   </Box>
                   <Box>
-                      <Tooltip content="Eliminar"><Button onClick={() => RemoveSale(sale)} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
-                      <Tooltip content="Localizar"><Button color="green" onClick={() => {setSelectedSale(sale); setIsLocationMapModalOpen(true);}}><FontAwesomeIcon icon={faMapMarkerAlt} /></Button></Tooltip>
+                      <Flex gap={"1"} wrap={"wrap"}>
+                        {roadMap.state === "Creado" && (<Tooltip content="Eliminar"><Button size={"1"} onClick={() => RemoveSale(sale)} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>)}
+                        {roadMap.state === "Creado" && (<Tooltip content="Localizar"><Button size={"1"} color="green" onClick={() => {setSelectedSale(sale); setIsLocationMapModalOpen(true);}}><FontAwesomeIcon icon={faMapMarkerAlt} /></Button></Tooltip>)}
+                        <Tooltip content="Copiar"><Button size={"1"} onClick={() => copyToClipboard(sale)} color="blue"><FontAwesomeIcon icon={faCopy} /></Button></Tooltip>
+                      </Flex>
                   </Box>
               </Grid>
           </Card>
@@ -294,7 +303,7 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
           <Box gridColumn={"span 10"}></Box>
           <Box gridColumn={"span 3"}></Box>
           <Box gridColumn={"span 4"}>
-            <TextField.Root placeholder="Ingresar Numero Venta" value={saleNumber} onChange={(e) => setSaleNumber(e.target.value)} onKeyDown={handleKeySaleNumber} />
+            {roadMap.state === "Creado" && (<TextField.Root placeholder="Ingresar Numero Venta" value={saleNumber} onChange={(e) => setSaleNumber(e.target.value)} onKeyDown={handleKeySaleNumber} />)}
           </Box>
           <Box gridColumn={"span 3"} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Flex justify="end" gap="2" mt="3">

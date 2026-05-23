@@ -11,7 +11,7 @@ export const RoadMapPrint = React.forwardRef<HTMLDivElement, Props>(
   ({roadMap}, ref) => {
     console.log({roadMap});
     return (
-        <div ref={ref} className="Print-A4">
+        <div ref={ref} style={{minWidth: "200mm", minHeight:"270mm", fontSize:"14px"}}>
             <div style={{ textAlign: "center"}}>
                 <div style={{display:"inline-block", fontSize: "40px", fontWeight: "bold"}} >Nro {roadMap?.number ?? 0}</div>
             </div>
@@ -36,6 +36,7 @@ export const RoadMapPrint = React.forwardRef<HTMLDivElement, Props>(
                             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr"}}>
                                 <div>
                                     <div style={{display:"inline-block", fontSize: "40px", width:"100%", textAlign:"center", fontWeight: "bold"}}>{sale.sortOrder}</div>
+                                    <div style={{display:"inline-block", fontSize: "15px", width:"100%", textAlign:"center", fontWeight: "bold"}}>${sale.sale.totalPrice}</div>
                                 </div>
                                 <div style={{gridColumn: "span 3"}}>
                                     <div style={{fontSize: "14px", fontWeight: "bold"}}>{sale.sale.number} - {sale.sale.businessName}</div>

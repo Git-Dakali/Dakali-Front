@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
-import { Grid, Box, Table, Button, Flex, Tooltip, Heading } from "@radix-ui/themes";
+import { Grid, Box, Table, Button, Flex, Tooltip, Heading, TextField, Badge } from "@radix-ui/themes";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil, faTrash, faPlusCircle, faMapLocationDot, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faTrash, faPlusCircle, faMapLocationDot, faPrint, faFilter, faRoadCircleCheck, faFileCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { ErrorModal } from "../../../components/ErrorModal";
 import { RoadMapService, type RoadMapResponse, type RoadMapRequest } from "../../../api/generated";
 import { RoadMapModal } from "./RoadMapModal";
@@ -9,6 +9,7 @@ import { RoutingModal } from "./RoutingModal";
 import { RoadMapPrint } from "./Print/RoadMapPrint";
 import { useReactToPrint } from "react-to-print";
 import { Pagination } from "../../../components/Pagination";
+import { GetPrintStyle } from "../../../PageStyle";
 
 
 export const RoadMapPage: React.FC = () => {
@@ -23,19 +24,30 @@ export const RoadMapPage: React.FC = () => {
   const roadMapPrintRef = useRef<HTMLDivElement>(null);
   const [selectedRoadMapPrint, setSelectedRoadMapPrint] = useState<RoadMapResponse | null>(null);
 
+  const [filterSearchString, setFilterSearchString] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
+  const RunFilter = ()=>{
+    RoadMapService.roadMapGetPage({page, countRows: rows, searchString: filterSearchString}).then((data) => {
+      setTotalRows(data.count);
+      setRoadMaps(data.values);
+    });
+  };
+  
   const handlePrint = useReactToPrint({
     contentRef: roadMapPrintRef,
-    documentTitle: "Dakali"
+    documentTitle: "Dakali",
+    pageStyle: GetPrintStyle("A4")
   });
 
   useEffect(()=> {
-    RoadMapService.roadMapGetAll().then(data => {setRoadMaps(data)});
-  }, [refreshRoadMaps]);
+    RunFilter()
+  }, [page, rows, refreshRoadMaps]);
+
 
   useEffect(()=> {
-    console.log({useEffect: selectedRoadMapPrint});
 
     if(selectedRoadMapPrint === null)
       return;
@@ -62,7 +74,31 @@ export const RoadMapPage: React.FC = () => {
     setSelectedRoadMap(roadMap);
     setIsRoutingModalOpen(true);
   };
+
+  const OnTrip = (roadMap: RoadMapResponse) => {
+    RoadMapService.roadMapOnTrip(roadMap.id).then(() => {
+      setRefreshRoadMaps(!refreshRoadMaps);
+    })
+    .catch((error) => { 
+      console.log({error});
+      setErrorMessage(error.body.message);
+      setErrorOpen(true);
+      setRefreshRoadMaps(!refreshRoadMaps);
+    });
+  };
   
+  const FinishTrip = (roadMap: RoadMapResponse) => {
+    RoadMapService.roadMapFinishTrip(roadMap.id).then(() => {
+      setRefreshRoadMaps(!refreshRoadMaps);
+    })
+    .catch((error) => { 
+      console.log({error});
+      setErrorMessage(error.body.message);
+      setErrorOpen(true);
+      setRefreshRoadMaps(!refreshRoadMaps);
+    });
+  };
+
   const SaveService = async (roadMapRequest: RoadMapRequest) => {
 
       if(roadMapRequest.id == 0)
@@ -103,11 +139,17 @@ console.log({selectedRoadMapPrint})
         <Box></Box>
         <Box></Box>
         <Box>
-          <Grid rows="auto 1fr" columns="1" height={"100%"} gap={"2"}>
+          <Grid rows="auto 1fr" columns="10fr 1fr 2fr" height={"100%"} gap={"2"}>
+            <Box>
+              <TextField.Root placeholder="Filtro libre" value={filterSearchString} onChange={(e) => setFilterSearchString(e.target.value)}/>
+            </Box>
+            <Flex justify={"start"}>
+              <Button onClick={() => { if(page !== 1) setPage(1); else RunFilter(); }}><FontAwesomeIcon icon={faFilter} /></Button>
+            </Flex>
             <Flex justify={"end"}>
               <Tooltip content="Crear"><Button onClick={CreateEvent}><FontAwesomeIcon icon={faPlusCircle} /></Button></Tooltip>
             </Flex>
-            <Box>
+            <Box gridColumn={"span 3"}>
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
@@ -122,6 +164,7 @@ console.log({selectedRoadMapPrint})
                 </Table.Header>
                 <Table.Body>
                   {roadMaps.map(roadMap => {
+                    const color = (roadMap.state === "EnViaje") ? "cyan" : ((roadMap.state === "Finalizado" ? "green" : "blue"));
                     return (
                       <Table.Row key={roadMap.guid}>
                         <Table.Cell>{roadMap.number}</Table.Cell>
@@ -129,20 +172,23 @@ console.log({selectedRoadMapPrint})
                         <Table.Cell>{roadMap.travelDate}</Table.Cell>
                         <Table.Cell>{roadMap.completionDate}</Table.Cell>
                         <Table.Cell>{roadMap.driver.firstName} {roadMap.driver.lastName}</Table.Cell>
-                        <Table.Cell>{roadMap.state}</Table.Cell>
+                        <Table.Cell><Badge color={color}>{roadMap.state}</Badge></Table.Cell>
                         <Table.Cell>
-                          <Tooltip content="Editar"><Button onClick={() => { EditEvent(roadMap);}}><FontAwesomeIcon icon={faPencil} /></Button></Tooltip>
-                          <Tooltip content="Ruteo"><Button color="green" onClick={() => { RoutingEvent(roadMap);}}><FontAwesomeIcon icon={faMapLocationDot} /></Button></Tooltip>
-                          <Tooltip content="Imprimir"><Button color="blue" onClick={() => { RoadMapService.roadMapGet(roadMap?.id).then(data => setSelectedRoadMapPrint(data)); }}><FontAwesomeIcon icon={faPrint} /></Button></Tooltip>
-                          <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(roadMap as RoadMapRequest);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
+                          <Flex gap={"1"}>
+                            {roadMap.state === "Creado" && (<Tooltip content="Editar"><Button onClick={() => { EditEvent(roadMap);}}><FontAwesomeIcon icon={faPencil} /></Button></Tooltip>)}
+                            {roadMap.state === "Creado" && (<Tooltip content="En Viaje"><Button color="cyan" onClick={() => { OnTrip(roadMap) }}><FontAwesomeIcon icon={faRoadCircleCheck} /></Button></Tooltip>)}
+                            {roadMap.state === "EnViaje" && (<Tooltip content="Finalizar"><Button color="green" onClick={() => { FinishTrip(roadMap) }}><FontAwesomeIcon icon={faFileCircleCheck} /></Button></Tooltip>)}
+                            <Tooltip content="Ruteo"><Button color="orange" onClick={() => { RoutingEvent(roadMap);}}><FontAwesomeIcon icon={faMapLocationDot} /></Button></Tooltip>
+                            <Tooltip content="Imprimir"><Button color="blue" onClick={() => { RoadMapService.roadMapGet(roadMap?.id).then(data => setSelectedRoadMapPrint(data)); }}><FontAwesomeIcon icon={faPrint} /></Button></Tooltip>
+                            {roadMap.state === "Creado" && (<Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(roadMap as RoadMapRequest);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>)}
+                          </Flex>
                         </Table.Cell>
                       </Table.Row>
                     );
                   })}
                 </Table.Body>
               </Table.Root>
-              <Pagination currentPage={page} rows={10} totalRows={101} onChangePage={setPage} onChangeRows={() => {}}/>
-
+              <Pagination currentPage={page} rows={rows} totalRows={totalRows} onChangePage={setPage} onChangeRows={setRows}/>
             </Box>
           </Grid>
           
@@ -170,7 +216,7 @@ console.log({selectedRoadMapPrint})
         onOpenChange={setErrorOpen}
         message={errorMessage}
       />
-      <div style={{  }}>
+      <div style={{ display: "none" }}>
         <RoadMapPrint ref={roadMapPrintRef} roadMap={selectedRoadMapPrint as RoadMapResponse} />
       </div>
 

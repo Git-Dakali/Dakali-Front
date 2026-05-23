@@ -22,7 +22,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   
   const [names, setNames] = useState<string[]>(modelPersisted?.variantNames ?? []);
-  const [selectedCategoryCode, setSelectedCategoryCode] = useState<string>(modelPersisted?.category.code??"");
+  const [selectedCategoryCode, setSelectedCategoryCode] = useState<string>(modelPersisted?.category?.code??"");
 
   const [fieldGroups, setFieldGroups] = useState<FieldGroupResponse[]>(modelPersisted?.fieldGroups ?? []);
   const [isModalFieldGroupsOpen, setIsModalFieldGroupsOpen] = useState(false);
@@ -38,7 +38,7 @@ export const ModelModal : React.FC<ModelModalProps> = ({
           setModelPersisted(data);
           setNames(data.variantNames);
           setFieldGroups(data.fieldGroups);
-          setSelectedCategoryCode(data.category.code);
+          setSelectedCategoryCode((data.category?.code ?? ""));
         });
       }
     });

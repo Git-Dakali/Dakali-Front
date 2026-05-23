@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Select, { } from "react-select"
 import { format } from "date-fns";
-import { Dialog, Button, Flex, Text, TextField, Box, Grid, Tabs, TextArea, Heading, Badge, Table, Tooltip, Checkbox } from "@radix-ui/themes";
-import { CityService, OriginSaleService, ProductService, ProvinceService, SaleDetailService, TaxStatusService, type CityRequest, type CityResponse, type OriginSaleRequest, 
+import { Dialog, Button, Flex, Text, TextField, Box, Grid, Tabs, TextArea, Heading, Badge, Table, Tooltip, Checkbox, Skeleton } from "@radix-ui/themes";
+import { CityService, OriginSaleService, ProductService, ProvinceService, SaleDetailService, SaleService, TaxStatusService, type CityRequest, type CityResponse, type OriginSaleRequest, 
         type OriginSaleResponse, type ProductResponse, type ProvinceRequest, type ProvinceResponse, type SaleDetailRequest, type SaleDetailResponse, type SaleRequest, type SaleResponse, 
         type TaxStatusRequest, type TaxStatusResponse } from "../../../api/generated";
 import DatePicker from "react-datepicker";
@@ -10,6 +10,7 @@ import TimePicker from "react-time-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faCheckCircle, faXmarkCircle, faXmarkSquare, faCheckSquare, faTrash, faAsterisk } from "@fortawesome/free-solid-svg-icons";
 import { ErrorModal } from "../../../components/ErrorModal";
+import { parse } from "date-fns";
 
 
 type Option = { value: string; label: string };
@@ -30,28 +31,28 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   const [numberFormatArg] = useState(new Intl.NumberFormat("es-AR"));
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [number] = useState(sale?.number ?? 0 );
-  const [arcaNumber] = useState(sale?.arcaNumber ?? "" );
-  const [identifier] = useState(sale?.identifier ?? "" );
-  const [dni, setDni] = useState(sale?.dni ?? "");
-  const [cuit, setCuit] = useState(sale?.cuit ?? "");
-  const [date, setDate] = useState<Date|null>(new Date());
-  const [deliveryDate, setDeliveryDate] = useState<Date|null>(new Date());
-  const [deliveryStartTime, setDeliveryStartTime] = useState<string|null>(sale?.deliveryStartTime??"09:00");
-  const [deliveryEndTime, setDeliveryEndTime] = useState<string|null>(sale?.deliveryEndTime ?? "21:00");
-  const [businessName, setBusinessName] = useState(sale?.businessName ?? "");
-  const [address, setAddress] = useState(sale?.address ?? "");
-  const [floor, setFloor] = useState(sale?.floor ?? "");
-  const [apartment, setApartment] = useState(sale?.apartment ?? "");
-  const [phone, setPhone] = useState(sale?.phone ?? "");
-  const [observation, setObservation] = useState(sale?.observation ?? "");
-  const [grossPrice, setGrossPrice] = useState(sale?.grossPrice ?? 0);
-  const [totalPrice, setTotalPrice] = useState(sale?.totalPrice ?? 0);
-  const [discounts, setDiscounts] = useState(sale?.discounts ?? 0);
-  const [shippingPrice] = useState(sale?.shippingPrice ?? 6000);
-  const [state] = useState(sale?.state ?? "Creado");
+  const [number, setNumber] = useState(0 );
+  const [arcaNumber, setArcaNumber] = useState("" );
+  const [identifier, setIdentifier] = useState("" );
+  const [dni, setDni] = useState("");
+  const [cuit, setCuit] = useState("");
+  const [date, setDate] = useState<Date|null>(null);
+  const [deliveryDate, setDeliveryDate] = useState<Date|null>(null);
+  const [deliveryStartTime, setDeliveryStartTime] = useState<string|null>("09:00");
+  const [deliveryEndTime, setDeliveryEndTime] = useState<string|null>("21:00");
+  const [businessName, setBusinessName] = useState("");
+  const [address, setAddress] = useState("");
+  const [floor, setFloor] = useState("");
+  const [apartment, setApartment] = useState("");
+  const [phone, setPhone] = useState("");
+  const [observation, setObservation] = useState("");
+  const [grossPrice, setGrossPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [discounts, setDiscounts] = useState(0);
+  const [shippingPrice, setShippingPrice] = useState(6000);
+  const [state, setState] = useState("");
   //const [pdfInvoice, setPdfInvoice] = useState(sale.pdfInvoice);
-    const [saleDetails, setSaleDetails] = useState(sale?.saleDetails ?? []);
+    const [saleDetails, setSaleDetails] = useState<SaleDetailResponse[]>([]);
 
    const [refreshDetails, setRefreshDetails] = useState(false);
 
@@ -72,6 +73,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   const [listProvince, setListProvince] = useState<ProvinceResponse[]>([]);
   const [listCity, setListCity] = useState<CityResponse[]>([]);
   const [listProducts, setListProducts] = useState<ProductResponse[]>([]);
+  const [isLoadingCity, setIsLoadingCity] = useState(false);
 
   const [optionTaxStatus, setOptionTaxStatus] = useState<Option[]>([]);
   const [optionOriginSale, setOptionOriginSale] = useState<Option[]>([]);
@@ -82,14 +84,15 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   const [isAdding, setIsAdding] = useState(false);
   
   useEffect(()=> {
-    TaxStatusService.taxStatusGetAll().then((data) => { 
+    const taxStatusPromise = TaxStatusService.taxStatusGetAll().then((data) => { 
         setListTaxStatus(data);
         setOptionTaxStatus(data.map(x => { return { value: x.id.toString(), label: x.code + "-" + x.name }; }));
 
         if(sale?.taxStatus)
             setSelectedOptionTaxStatus({value: sale.taxStatus.id.toString(), label: sale.taxStatus.code +"-"+sale.taxStatus.name});
      });
-    OriginSaleService.originSaleGetAll().then((data)=> { 
+
+    const originSalePromise = OriginSaleService.originSaleGetAll().then((data)=> { 
         setListOriginSale(data);
         const valueOptions = data.map(x => { return { value: x.code, label: x.code + "-" + x.name }; }); 
         setOptionOriginSale(valueOptions); 
@@ -99,7 +102,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
         else
             setSelectedOptionOriginSale(valueOptions.find(x => x.value === "DKL"));
     });
-    ProvinceService.provinceGetAll().then((data)=> { 
+    const provincePromise = ProvinceService.provinceGetAll().then((data)=> { 
         setListProvince(data); 
         setOptionProvince(data.map(x => { return { value: x.id.toString(), label: x.code + "-" + x.name }; })); 
 
@@ -107,10 +110,38 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             setSelectedOptionProvince({value: sale.city.province.id.toString(), label: sale.city.province.code + "-" + sale.city.province.name});
 
         if(sale?.city)
-            setSelectedOptionCity({ value: sale.city.id.toString(), label: sale.city.zipCode + "" + sale.city.name });
+            setSelectedOptionCity({ value: sale.city.id.toString(), label: sale.city.zipCode + "-" + sale.city.name });
     });
 
-    ProductService.productGetAll().then((data)=>{ setListProducts(data); });
+    const productPromise = ProductService.productGetAll().then((data)=>{ setListProducts(data); });
+
+    Promise.all([taxStatusPromise, originSalePromise, provincePromise, productPromise]).then(() => {
+
+        SaleService.saleGet(sale?.id).then(data => {
+            setNumber(sale?.number ?? 0 );
+            setArcaNumber(sale?.arcaNumber ?? "" );
+            setIdentifier(sale?.identifier ?? "" );
+            setDni(data?.dni ?? "");
+            setCuit(sale?.cuit ?? "");
+            setDate(parse(data.date ?? "", "dd-MM-yyyy HH:mm", new Date()));
+            setDeliveryDate(parse(data.deliveryDate??"", "dd-MM-yyyy HH:mm", new Date()));
+            setDeliveryStartTime(sale?.deliveryStartTime??"09:00");
+            setDeliveryEndTime(sale?.deliveryEndTime ?? "21:00");
+            setBusinessName(sale?.businessName ?? "");
+            setAddress(sale?.address ?? "");
+            setFloor(sale?.floor ?? "");
+            setApartment(sale?.apartment ?? "");
+            setPhone(sale?.phone ?? "");
+            setObservation(sale?.observation ?? "");
+            setGrossPrice(sale?.grossPrice ?? 0);
+            setTotalPrice(sale?.totalPrice ?? 0);
+            setDiscounts(sale?.discounts ?? 0);
+            setShippingPrice(sale?.shippingPrice ?? 6000);
+            setState(sale?.state ?? "Creado");
+            //const [pdfInvoice, setPdfInvoice] = useState(sale.pdfInvoice);
+            setSaleDetails(sale?.saleDetails ?? []);
+        })
+    })
   }, []);
 
   useEffect(() => {
@@ -143,6 +174,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   const optionColors = useMemo(() => { return listColors.map(item => { return { value: item.id.toString(), label: item.name }; })}, [listColors]);
 
     useEffect(() => {
+        setIsLoadingCity(true);
         CityService.cityGetByCity(province as ProvinceRequest).then((data) => { 
             setListCity(data); 
             setOptionCity(data.map(x => { return { value: x.id.toString(), label: x.zipCode + "-" + x.name }; }));
@@ -151,7 +183,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             
             if(findCity === null || findCity === undefined)
                 setSelectedOptionCity(null);
-        });
+        }).finally(() => {setIsLoadingCity(false);});
       
     }, [province])
 
@@ -174,7 +206,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
     saleRequest.cuit = cuit;
     saleRequest.number = number;
     saleRequest.arcaNumber = arcaNumber;
-    saleRequest.date = deliveryDate ? format(deliveryDate, "dd-MM-yyyy") : "";
+    saleRequest.date = date ? format(date, "dd-MM-yyyy") : "";
     saleRequest.deliveryDate = deliveryDate ? format(deliveryDate, "dd-MM-yyyy") : "";
     saleRequest.deliveryStartTime = deliveryStartTime ?? "00:00";
     saleRequest.deliveryEndTime = deliveryEndTime ?? "00:00";
@@ -185,6 +217,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
     saleRequest.phone = phone;
     saleRequest.observation = observation;
     saleRequest.totalPrice = totalPrice;
+    saleRequest.grossPrice = grossPrice;
     saleRequest.discounts = discounts;
     saleRequest.shippingPrice = shippingPrice;
     saleRequest.state = state;
@@ -402,7 +435,11 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                             </Box>
                             <Box gridColumn={"span 2"}>
                                 <Text size="2" mb="1" style={{ display: "block" }}>Localidad<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
-                                <Select options={optionCity} value={selectedOptionCity} onChange={option=> setSelectedOptionCity(option?? null) }/>
+                                {isLoadingCity && (<Skeleton height={"30px"}></Skeleton>)}
+                                {!isLoadingCity && (
+                                    <Select options={optionCity} value={selectedOptionCity} onChange={option=> setSelectedOptionCity(option?? null) }/>
+                                )}
+                                
                             </Box>
                             
                             <Box></Box>

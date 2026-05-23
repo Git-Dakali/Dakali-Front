@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ResultPageResponseOfRoadMapResponse } from '../models/ResultPageResponseOfRoadMapResponse';
+import type { RoadMapFilter } from '../models/RoadMapFilter';
 import type { RoadMapRequest } from '../models/RoadMapRequest';
 import type { RoadMapResponse } from '../models/RoadMapResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -16,6 +18,20 @@ export class RoadMapService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/RoadMap/GetAll',
+        });
+    }
+    /**
+     * @param cityFilter
+     * @returns ResultPageResponseOfRoadMapResponse
+     * @throws ApiError
+     */
+    public static roadMapGetPage(
+        cityFilter: RoadMapFilter,
+    ): CancelablePromise<ResultPageResponseOfRoadMapResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/RoadMap/GetPage',
+            body: cityFilter,
         });
     }
     /**
@@ -74,6 +90,34 @@ export class RoadMapService {
             method: 'POST',
             url: '/RoadMap/Delete',
             body: data,
+        });
+    }
+    /**
+     * @param roadMapId
+     * @returns any
+     * @throws ApiError
+     */
+    public static roadMapOnTrip(
+        roadMapId: number,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/RoadMap/OnTrip',
+            body: roadMapId,
+        });
+    }
+    /**
+     * @param roadMapId
+     * @returns any
+     * @throws ApiError
+     */
+    public static roadMapFinishTrip(
+        roadMapId: number,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/RoadMap/FinishTrip',
+            body: roadMapId,
         });
     }
 }

@@ -2,24 +2,24 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { RoadMapSaleResponse } from '../models/RoadMapSaleResponse';
+import type { HistoricSaleResponse } from '../models/HistoricSaleResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class RoadMapSaleService {
+export class HistoricSaleService {
     /**
-     * @param roadMapId
-     * @returns RoadMapSaleResponse
+     * @param saleId
+     * @returns HistoricSaleResponse
      * @throws ApiError
      */
-    public static roadMapSaleGetByRoadMap(
-        roadMapId?: number,
-    ): CancelablePromise<Array<RoadMapSaleResponse>> {
+    public static historicSaleGet(
+        saleId?: number,
+    ): CancelablePromise<Array<HistoricSaleResponse>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/RoadMapSale/GetByRoadMap',
+            url: '/HistoricSale/GetAll',
             query: {
-                'RoadMapId': roadMapId,
+                'saleId': saleId,
             },
         });
     }

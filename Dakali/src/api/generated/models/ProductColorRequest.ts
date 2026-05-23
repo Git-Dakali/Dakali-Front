@@ -7,6 +7,7 @@ import type { RequestGuid } from './RequestGuid';
 export type ProductColorRequest = (RequestGuid & {
     name: string;
     hex: string;
+    sku: string;
     sortOrder: number;
     images: Array<ImageRequest>;
 });

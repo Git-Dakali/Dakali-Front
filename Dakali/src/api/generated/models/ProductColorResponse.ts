@@ -7,6 +7,7 @@ import type { ResponseGuid } from './ResponseGuid';
 export type ProductColorResponse = (ResponseGuid & {
     name: string;
     hex: string;
+    sku: string;
     sortOrder: number;
     images: Array<ImageResponse>;
 });

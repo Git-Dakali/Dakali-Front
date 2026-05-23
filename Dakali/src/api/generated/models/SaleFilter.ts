@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Filter } from './Filter';
-import type { SaleState } from './SaleState';
 export type SaleFilter = (Filter & {
     identifier?: string;
     number?: number;
@@ -18,7 +17,7 @@ export type SaleFilter = (Filter & {
     taxStatusId?: number;
     originSaleId?: number;
     cityId?: number;
-    state?: SaleState;
+    state?: string;
     skus: Array<string>;
 });
 
