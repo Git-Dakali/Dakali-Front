@@ -3,14 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { LocationRequest } from './LocationRequest';
-import type { ProductColorRequest } from './ProductColorRequest';
-import type { ProductRequest } from './ProductRequest';
+import type { ProductSkuRequest } from './ProductSkuRequest';
 import type { RequestGuid } from './RequestGuid';
-import type { VariantRequest } from './VariantRequest';
 export type StockRequest = (RequestGuid & {
-    product?: ProductRequest;
-    variant?: VariantRequest;
-    color?: ProductColorRequest;
+    productSku?: ProductSkuRequest;
     location?: LocationRequest;
     physical: number;
     reserved: number;

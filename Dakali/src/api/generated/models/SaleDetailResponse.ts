@@ -2,18 +2,16 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ProductColorResponse } from './ProductColorResponse';
 import type { ProductResponse } from './ProductResponse';
+import type { ProductSkuResponse } from './ProductSkuResponse';
 import type { ResponseGuid } from './ResponseGuid';
 import type { StockResponse } from './StockResponse';
-import type { VariantResponse } from './VariantResponse';
 export type SaleDetailResponse = (ResponseGuid & {
     product?: ProductResponse;
-    variant?: VariantResponse;
-    color?: ProductColorResponse;
+    productSku?: ProductSkuResponse;
     count: number;
     price: number;
-    isExtra: boolean;
+    isExchangeItem: boolean;
     stock?: StockResponse;
 });
 

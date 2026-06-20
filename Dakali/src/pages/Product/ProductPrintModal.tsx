@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Select, { } from "react-select"
 import { Dialog, Button, Flex, Text, TextField, Box, Grid } from "@radix-ui/themes";
-import { type ProductColorResponse, type ProductResponse, type VariantResponse, ProductService } from "../../api/generated";
+import { type ProductColorResponse, type ProductResponse, type ProductSkuResponse, type VariantResponse, ProductService } from "../../api/generated";
 import { ProductPrint } from "./Print/ProductPrint";
 import { useReactToPrint } from "react-to-print";
 import { GetPrintStyle } from "../../PageStyle";
@@ -23,13 +23,21 @@ export const ProductPrintModal : React.FC<ProductPrintModalProps> = ({
     const [selectedOptionVariant, setSelectedOptionVariant] = useState<Option|null>();
     const [selectedOptionColor, setSelectedOptionColor] = useState<Option|null>();
 
-    const listVariants = useMemo(() => { return productPersisted?.variants ?? []; }, [productPersisted]);
+    const [listVariants, setListVariants] = useState<VariantResponse[]>([]);
+    const [listColors, setListColors] = useState<ProductColorResponse[]>([]);
+    
     const variant = useMemo(() => { return listVariants.find(p => p.id.toString() === selectedOptionVariant?.value) ?? null; }, [selectedOptionVariant, listVariants]);
-    const listColors = useMemo(() => { return variant?.colorsHex ?? []; }, [variant]);
     const color = useMemo(() => { return listColors.find(p => p.id.toString() === selectedOptionColor?.value) ?? null; }, [selectedOptionColor, listColors]);
 
     const optionVariants = useMemo(() => { return listVariants.map(item => { return { value: item.id.toString(), label: item.name }; })}, [listVariants]);
     const optionColors = useMemo(() => { return listColors.map(item => { return { value: item.id.toString(), label: item.name }; })}, [listColors]);
+
+    const productSku = useMemo(() => { 
+        const list = productPersisted?.skus.filter(x => x.variant?.id === variant?.id && x.color?.id === color?.id);
+        
+        if(list?.length === 1)
+            return list[0];
+    }, [productPersisted, variant, color]);
 
     const productPrintRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +48,12 @@ export const ProductPrintModal : React.FC<ProductPrintModalProps> = ({
       });
 
     useEffect(() => {
-        ProductService.productGet((product?.id ?? 0)).then((data) => { setProductPersisted(data)});
+        ProductService.productGet((product?.id ?? 0))
+        .then((data) => { 
+            setProductPersisted(data);
+            setListVariants(data.variants);
+            setListColors(data.colors);
+        });
     }, []);
 
     const title = "Impresion Etiqueta";
@@ -53,7 +66,7 @@ export const ProductPrintModal : React.FC<ProductPrintModalProps> = ({
                 <Grid columns="1fr 1fr 1fr" gap="3" rows="1fr auto" width="auto" height="100%">
                     <Box>
                         <Text size="2" mb="1" style={{ display: "block" }}>Producto</Text>
-                        <TextField.Root value={(productPersisted?.model?.code ?? "") + " - " + (productPersisted?.name ?? "")} disabled/>
+                        <TextField.Root value={(productPersisted?.code ?? "") + " - " + (productPersisted?.name ?? "")} disabled/>
                     </Box>
                     <Box>
                         <Text size="2" mb="1" style={{ display: "block" }}>Variante</Text>
@@ -75,7 +88,7 @@ export const ProductPrintModal : React.FC<ProductPrintModalProps> = ({
             </Dialog.Content>
         </Dialog.Root>
         <div style={{ display: "" }}>
-                <ProductPrint ref={productPrintRef} product={productPersisted as ProductResponse} variant={variant as VariantResponse} color={color as ProductColorResponse} />
+                <ProductPrint ref={productPrintRef} product={productPersisted as ProductResponse} productSku={productSku as ProductSkuResponse} />
               </div>
         </>
   );

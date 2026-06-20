@@ -1,6 +1,7 @@
-import React, { useRef, useState } from "react";
-import { Button, Flex, Text, Box, Grid, Heading, TextField, TextArea } from "@radix-ui/themes";
-import { type SaleResponse } from "../../../api/generated";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Select, { } from "react-select"
+import { Button, Flex, Text, Box, Grid, Heading, TextField, TextArea, Skeleton } from "@radix-ui/themes";
+import { CityService, ProvinceService, SaleService, type CityResponse, type ProvinceRequest, type ProvinceResponse, type SaleLocationRequest, type SaleResponse } from "../../../api/generated";
 import { Autocomplete, GoogleMap, InfoWindow, Marker, StreetViewPanorama } from "@react-google-maps/api";
 import { Modal } from "../../../components/Modal";
 
@@ -9,8 +10,10 @@ type LocationGoogleMapModalProps = {
   onOpenChange: (open: boolean) => void;
   sale: SaleResponse;
   container?: HTMLElement | null;
-  onSave: (saleId:number, latitude:number, longitude:number) => Promise<void> | void;
+  onSave: (location: SaleLocationRequest) => Promise<void> | void;
 };
+
+type Option = { value: string; label: string };
 
 export const LocationGoogleMapModal: React.FC<LocationGoogleMapModalProps> = ({
   open,
@@ -18,23 +21,84 @@ export const LocationGoogleMapModal: React.FC<LocationGoogleMapModalProps> = ({
   sale,
   onSave,
 }) => {
+  
+  
+
   const [zoom, setZoom] = useState(17);
   const [markerLocation, setMarkerLocation] = useState({ lat: sale.latitude, lng: sale.longitude });
   const [showMarkerInfo, setShowMarkerInfo] = useState(false);
+  const [isLoadingCity, setIsLoadingCity] = useState(false);
 
-  const SaveRoadMap = () => {
-      onSave(sale.id, markerLocation.lat, markerLocation.lng);
-  };
+  const [number, setNumber] = useState(sale.number);
+  const [businessName, setBusinessName] = useState(sale.businessName);
+  const [phone, setPhone] = useState(sale.phone);
+  const [address, setAddress] = useState(sale.address);
+  const [observation, setObservation] = useState(sale.observation);
+
+  const [selectedOptionProvince, setSelectedOptionProvince] = useState<Option|null>();
+  const [selectedOptionCity, setSelectedOptionCity] = useState<Option|null>();
+
+  const [listProvince, setListProvince] = useState<ProvinceResponse[]>([]);
+  const [listCity, setListCity] = useState<CityResponse[]>([]);
+
+  const [optionProvince, setOptionProvince] = useState<Option[]>([]);
+  const [optionCity, setOptionCity] = useState<Option[]>([]);
+
+  const city = useMemo(() => { return listCity.find(p => p.id.toString() === selectedOptionCity?.value) ?? null; }, [selectedOptionCity, listCity]);
+  const province = useMemo(() => { return listProvince.find(x => x.id.toString() === selectedOptionProvince?.value); }, [selectedOptionProvince, listProvince]);
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const addressInputRef = useRef<HTMLInputElement | null>(null);
-  const [searchAddress, setSearchAddress] = useState(sale.address + ", " + sale.city?.name);
- 
+  const [searchAddress, setSearchAddress] = useState("");
+
+  const SaveRoadMap = () => {
+      onSave({saleId: sale.id, latitude: markerLocation.lat, longitude: markerLocation.lng, address, observation, city: (city as CityResponse)});
+  };
+
+  useEffect(()=> {
+
+      ProvinceService.provinceGetAll().then((data)=> { 
+          setListProvince(data); 
+          setOptionProvince(data.map(x => { return { value: x.id.toString(), label: x.code + "-" + x.name }; })); 
+  
+          if(sale?.city?.province)
+              setSelectedOptionProvince({value: sale.city.province.id.toString(), label: sale.city.province.code + "-" + sale.city.province.name});
+  
+          if(sale?.city)
+              setSelectedOptionCity({ value: sale.city.id.toString(), label: sale.city.zipCode + "-" + sale.city.name });
+      }).then(async () => {
+        await SaleService.saleGet(sale?.id).then(data => {
+              setNumber(data?.number ?? 0 );
+              setBusinessName(data?.businessName ?? "");
+              setAddress(data?.address ?? "");
+              setPhone(data?.phone ?? "");
+              setObservation(data?.observation ?? "");
+              setSearchAddress(data?.address + ", " + data.city?.name);
+          });
+      });
+    }, []);
+
+  
+
+  useEffect(() => {
+      CityService.cityGetByCity(province as ProvinceRequest).then((data) => { 
+          setListCity(data); 
+          setOptionCity(data.map(x => { return { value: x.id.toString(), label: x.zipCode + "-" + x.name }; }));
+
+          const findCity = data.find(x => x.id.toString() === selectedOptionCity?.value);
+          
+          if(findCity === null || findCity === undefined)
+              setSelectedOptionCity(null);
+      }).finally(() => {setIsLoadingCity(false);});
+    
+  }, [province])
+
   const onLoadAutocomplete = (autocomplete: google.maps.places.Autocomplete) => {
     autocompleteRef.current = autocomplete;
 
     autocomplete.setFields([
       "place_id",
+      "address_components",
       "formatted_address",
       "name",
       "geometry",
@@ -84,7 +148,7 @@ export const LocationGoogleMapModal: React.FC<LocationGoogleMapModalProps> = ({
             <Box></Box>
             <Box>
                 <Flex justify="center" gap="2" mt="3">
-                    <Heading size={"8"}>Nro Venta {sale.number}</Heading>
+                    <Heading size={"8"}>Nro Venta {number}</Heading>
                 </Flex>
             </Box>
             <Box></Box>
@@ -92,27 +156,31 @@ export const LocationGoogleMapModal: React.FC<LocationGoogleMapModalProps> = ({
         <Grid columns="1fr 1fr" gap={"2"}>
             <Box>
                 <Text size="2" mb="1" style={{ display: "block" }}>Razon Social</Text>
-                <TextField.Root  value={sale.businessName} disabled/>
+                <TextField.Root  value={businessName} disabled/>
             </Box>
             <Box>
                 <Text size="2" mb="1" style={{ display: "block" }}>Telefono</Text>
-                <TextField.Root  value={sale.phone} disabled/>
+                <TextField.Root  value={phone} disabled/>
             </Box>
             <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Ciudad</Text>
-                <TextField.Root  value={sale.city?.province?.name} disabled/>
+                <Text size="2" mb="1" style={{ display: "block" }}>Provincia</Text>
+                <Select options={optionProvince} value={selectedOptionProvince} onChange={option=> {setIsLoadingCity(true); setSelectedOptionProvince(option as Option);}}/>
             </Box>
             <Box>
                 <Text size="2" mb="1" style={{ display: "block" }}>Localidad</Text>
-                <TextField.Root  value={sale.city?.zipCode + "-" +sale.city?.name} disabled/>
+                {isLoadingCity && (<Skeleton height={"30px"}></Skeleton>)}
+                {!isLoadingCity && (
+                    <Select options={optionCity} value={selectedOptionCity} onChange={option=> setSelectedOptionCity(option?? null) }/>
+                )}
+                
             </Box>
             <Box>
                 <Text size="2" mb="1" style={{ display: "block" }}>domicilio</Text>
-                <TextField.Root  value={sale.address} disabled/>
+                <TextField.Root value={address} onChange={(e) => setAddress(e.target.value)}/>
             </Box>
             <Box gridColumn={"span 2"}>
                 <Text size="2" mb="1" style={{ display: "block" }}>Observacion</Text>
-                <TextArea rows={4} value={sale.observation} disabled/>
+                <TextArea rows={4} value={observation} onChange={(e) => setObservation(e.target.value)}/>
             </Box>
             <Box gridColumn={"span 2"}>
                 <Text size="2" mb="1" style={{ display: "block" }}>Busqueda</Text>

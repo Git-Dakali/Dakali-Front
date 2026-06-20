@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Select, { } from "react-select"
 import { Dialog, Button, Flex, Text, Box, Grid, Heading, Table } from "@radix-ui/themes";
-import { DriverService, RoadMapSaleService, type DriverResponse, type RoadMapRequest, type RoadMapResponse, type RoadMapSaleResponse } from "../../../api/generated";
+import { DriverService, RoadMapSaleService, type DriverResponse, type RoadMapRequest, type RoadMapResponse, type RoadMapSaleRequest, type RoadMapSaleResponse } from "../../../api/generated";
 import DatePicker from "react-datepicker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAsterisk } from "@fortawesome/free-solid-svg-icons";
@@ -69,7 +69,7 @@ export const RoadMapModal: React.FC<RoadMapModalProps> = ({
     entity.completionDate = completionDate ? format(completionDate, "dd-MM-yyyy") : "";
     entity.driver = driver as DriverResponse;
     entity.state = state;
-    entity.sales = sales;
+    entity.sales = sales as RoadMapSaleRequest[];
     onSave(entity);
   };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Flex, Text, Box, Grid, Heading, Card, ScrollArea, TextField, Tooltip } from "@radix-ui/themes";
-import { RoadMapSaleService, RoadMapService, SaleService, type RoadMapRequest, type RoadMapResponse, type RoadMapSaleRequest, type RoadMapSaleResponse, type SaleResponse } from "../../../api/generated";
+import { RoadMapSaleService, RoadMapService, SaleService, type RoadMapRequest, type RoadMapResponse, type RoadMapSaleRequest, type RoadMapSaleResponse, type SaleLocationRequest, type SaleRequest, type SaleResponse } from "../../../api/generated";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAsterisk, faCopy, faMapMarkerAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { DirectionsRenderer, GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
@@ -96,7 +96,7 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
     entity.completionDate = roadMap.completionDate;
     entity.driver = roadMap.driver;
     entity.state = roadMap.state;
-    entity.sales = details.map((sale, index) => {sale.sortOrder = (index + 1); return sale});
+    entity.sales = details.map((sale, index) => {sale.sortOrder = (index + 1); return sale}) as RoadMapSaleRequest[];
 
       await RoadMapService.roadMapUpdate(entity)
       .then((data)=>{
@@ -147,8 +147,8 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
     );
   };
 
-  const SaveLocationService = (saleId:number, latitude:number, longitude:number) => {
-    SaleService.saleAddLocation(saleId, longitude, latitude)
+  const SaveLocationService = (request: SaleLocationRequest) => {
+    SaleService.saleAddLocation(request)
     .then(()=>{ 
       setRefreshSales(!refreshSales); 
       setIsLocationMapModalOpen(false);
@@ -176,8 +176,8 @@ export const RoutingModal: React.FC<RoutingModalProps> = ({
             return;
         }
         
-        const roadMapSale:RoadMapSaleRequest = {id: 0, sale: sale, sortOrder: 0  };
-        SaveService([roadMapSale].concat(sales));
+        const roadMapSale:RoadMapSaleRequest = {id: 0, sale: sale as SaleRequest, sortOrder: 0  };
+        SaveService([roadMapSale].concat(sales as RoadMapSaleRequest[]));
     })
     .catch((error) => { 
         console.log({error});

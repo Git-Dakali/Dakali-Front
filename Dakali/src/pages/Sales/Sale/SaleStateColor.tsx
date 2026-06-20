@@ -1,18 +1,6 @@
-export type SaleState =
-  | "Creado"
-  | "Confirmado"
-  | "Preparado"
-  | "Anulado"
-  | "PendienteDespachar"
-  | "EnViaje"
-  | "Rechazado"
-  | "Entregado"
-  | "PendienteFacturar"
-  | "Facturado"
-  | "Devuelto"
-  | "Almacenado"
-  | "Cancelado"
-  | "EntregadoParcial"
+import type { SaleStates } from "./SaleState";
+
+export type SaleState = typeof SaleStates[number];
 
 export type ThemeColor =
   | "ruby"
@@ -50,10 +38,6 @@ export const SaleStateColor: Record<SaleState, ThemeColor> = {
   EnViaje: "cyan",
   Rechazado: "red",
   Entregado: "green",
-  PendienteFacturar: "iris",
-  Facturado: "indigo",
-  Devuelto: "amber",
-  Almacenado: "orange",
   EntregadoParcial: "green",
   Cancelado: "red",
 };

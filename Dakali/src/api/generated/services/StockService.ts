@@ -56,6 +56,34 @@ export class StockService {
     }
     /**
      * @param data
+     * @returns StockResponse
+     * @throws ApiError
+     */
+    public static stockUpdatePhysical(
+        data: StockRequest,
+    ): CancelablePromise<StockResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Stock/UpdatePhysical',
+            body: data,
+        });
+    }
+    /**
+     * @param data
+     * @returns any
+     * @throws ApiError
+     */
+    public static stockRecount(
+        data: Array<StockRequest>,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Stock/Recount',
+            body: data,
+        });
+    }
+    /**
+     * @param data
      * @returns any
      * @throws ApiError
      */

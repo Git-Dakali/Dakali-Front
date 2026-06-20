@@ -3,12 +3,15 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CityRequest } from './CityRequest';
+import type { LogisticsProviderRequest } from './LogisticsProviderRequest';
 import type { OriginSaleRequest } from './OriginSaleRequest';
 import type { RequestGuid } from './RequestGuid';
 import type { SaleDetailRequest } from './SaleDetailRequest';
 import type { StoredFileRequest } from './StoredFileRequest';
 import type { TaxStatusRequest } from './TaxStatusRequest';
 export type SaleRequest = (RequestGuid & {
+    isPrinted: boolean;
+    isReverseLogistics: boolean;
     identifier: string;
     dni: string;
     cuit: string;
@@ -34,6 +37,7 @@ export type SaleRequest = (RequestGuid & {
     originSale?: OriginSaleRequest;
     pdfInvoice?: StoredFileRequest;
     city?: CityRequest;
+    logisticsProvider?: LogisticsProviderRequest;
     state: string;
     saleDetails: Array<SaleDetailRequest>;
 });

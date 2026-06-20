@@ -2,13 +2,23 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ModelResponse } from './ModelResponse';
-import type { ResponseGuid } from './ResponseGuid';
+import type { CategoryResponse } from './CategoryResponse';
+import type { FieldResponse } from './FieldResponse';
+import type { ProductColorResponse } from './ProductColorResponse';
+import type { ProductSkuResponse } from './ProductSkuResponse';
+import type { ResponseCode } from './ResponseCode';
 import type { VariantResponse } from './VariantResponse';
-export type ProductResponse = (ResponseGuid & {
+export type ProductResponse = (ResponseCode & {
     name: string;
     description: string;
-    model?: ModelResponse;
+    active: boolean;
+    price: number;
+    salePrice: number;
+    weight: number;
+    category?: CategoryResponse;
+    fields: Array<FieldResponse>;
     variants: Array<VariantResponse>;
+    colors: Array<ProductColorResponse>;
+    skus: Array<ProductSkuResponse>;
 });
 

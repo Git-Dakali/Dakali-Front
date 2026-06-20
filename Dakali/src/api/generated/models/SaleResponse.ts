@@ -3,12 +3,15 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CityResponse } from './CityResponse';
+import type { LogisticsProviderResponse } from './LogisticsProviderResponse';
 import type { OriginSaleResponse } from './OriginSaleResponse';
 import type { ResponseGuid } from './ResponseGuid';
 import type { SaleDetailResponse } from './SaleDetailResponse';
 import type { StoredFileResponse } from './StoredFileResponse';
 import type { TaxStatusResponse } from './TaxStatusResponse';
 export type SaleResponse = (ResponseGuid & {
+    isPrinted: boolean;
+    isReverseLogistics: boolean;
     identifier: string;
     dni: string;
     cuit: string;
@@ -34,6 +37,7 @@ export type SaleResponse = (ResponseGuid & {
     originSale?: OriginSaleResponse;
     pdfInvoice?: StoredFileResponse;
     city?: CityResponse;
+    logisticsProvider?: LogisticsProviderResponse;
     state: string;
     saleDetails: Array<SaleDetailResponse>;
 });

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Select } from "@radix-ui/themes";
-import { type ProductColorRequest,  type LocationRequest,  type LocationResponse,  type ProductRequest, type ProductResponse, type StockRequest, type VariantRequest, LocationService, ProductService } from "../../api/generated";
+import { type LocationRequest,  type LocationResponse, type ProductResponse, type StockRequest, LocationService, ProductService, type ProductSkuRequest, StockService } from "../../api/generated";
+import { ErrorModal } from "../../components/ErrorModal";
 
 type StockModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (values: StockRequest) => Promise<void> | void;
+  onSave: () => void;
 };
 
 export const StockModal : React.FC<StockModalProps> = ({
@@ -14,11 +15,6 @@ export const StockModal : React.FC<StockModalProps> = ({
   onSave
 }) => {
   const [physical, setPhysical] = useState<number>(0 );
-  const [reserved, setReserved] = useState<number>(0);
-  const [transit, setTransit] = useState<number>(0);
-  const [free, setFree] = useState<number>(0);
-  const [minimum, setMinimum] = useState<number>(0);
-  const [maximum, setMaximum] = useState<number>(0);
 
   const [selectedProductID, setSelectedProductID] = useState<string>("");
   const [selectedVariantID, setSelectedVariantID] = useState<string>("");
@@ -27,6 +23,9 @@ export const StockModal : React.FC<StockModalProps> = ({
 
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [locations, setLocations] = useState<LocationResponse[]>([]);
+
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   
   useEffect(()=> {
     LocationService.locationGetAll().then((data) => { setLocations(data); });
@@ -37,7 +36,7 @@ export const StockModal : React.FC<StockModalProps> = ({
   const product = useMemo(() => { return products.find(p => p.id.toString() === selectedProductID) ?? null; }, [selectedProductID, products]);
   const variants = useMemo(() => { return product?.variants ?? []; }, [product]);
   const variant = useMemo(() => { return variants.find(p => p.id.toString() === selectedVariantID) ?? null; }, [selectedVariantID, variants]);
-  const colors = useMemo(() => { return variant?.colorsHex ?? []; }, [variant]);
+  const colors = useMemo(() => { return product?.colors ?? []; }, [product]);
   const color = useMemo(() => { return colors.find(p => p.id.toString() === selectedColorID) ?? null; }, [selectedColorID, colors]);
   const location = useMemo(() => { return locations.find(p => p.id.toString() === selectedLocationID) ?? null; }, [selectedLocationID, locations]);
 
@@ -46,18 +45,25 @@ export const StockModal : React.FC<StockModalProps> = ({
     stockRequest.id = 0;
     stockRequest.guid = crypto.randomUUID();
     stockRequest.searchString = "";
-    stockRequest.product = product as ProductRequest;
-    stockRequest.variant = variant as VariantRequest;
-    stockRequest.color = color as ProductColorRequest;
+    stockRequest.productSku = product?.skus.find(x => x.product?.id === product.id && x.color?.id === color?.id && x.variant?.id === variant?.id) as ProductSkuRequest;
     stockRequest.location = location as LocationRequest;
     stockRequest.physical = physical;
-    stockRequest.free = free;
-    stockRequest.reserved = reserved;
-    stockRequest.transit = transit;
-    stockRequest.minimum = minimum;
-    stockRequest.maximum = maximum;
+    stockRequest.free = 0;
+    stockRequest.reserved = 0;
+    stockRequest.transit = 0;
+    stockRequest.minimum = 0;
+    stockRequest.maximum = 0;
 
-    onSave(stockRequest);
+    StockService.stockCreate(stockRequest)
+      .then(() => {
+        onOpenChange(false);
+        onSave();    
+      })
+      .catch((error) =>{ 
+          console.log({error});
+          setErrorMessage(error.body.message);
+          setErrorOpen(true);
+      });
   };
 
   return (
@@ -125,27 +131,7 @@ export const StockModal : React.FC<StockModalProps> = ({
             </Box>
             <Box>
                 <Text size="2" mb="1" style={{ display: "block" }}>Stock Fisico</Text>
-                <TextField.Root type="number" value={physical} onChange={(e) => setPhysical(Number.parseInt(e.target.value))} disabled/>
-            </Box>
-            <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Stock Reservado</Text>
-                <TextField.Root type="number" value={reserved} onChange={(e) => setReserved(Number.parseInt(e.target.value))} disabled/>
-            </Box>
-            <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Stock Transito</Text>
-                <TextField.Root type="number" value={transit} onChange={(e) => setTransit(Number.parseInt(e.target.value))} disabled/>
-            </Box>
-            <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Stock Libre</Text>
-                <TextField.Root type="number" value={free} onChange={(e) => setFree(Number.parseInt(e.target.value))} disabled/>
-            </Box>
-            <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Stock Minimo</Text>
-                <TextField.Root type="number" value={minimum} onChange={(e) => setMinimum(Number.parseInt(e.target.value))} disabled/>
-            </Box>
-            <Box>
-                <Text size="2" mb="1" style={{ display: "block" }}>Stock Maximo</Text>
-                <TextField.Root type="number" value={maximum} onChange={(e) => setMaximum(Number.parseInt(e.target.value))} disabled/>
+                <TextField.Root type="number" value={physical} onChange={(e) => setPhysical(Number.parseInt(e.target.value))}/>
             </Box>
             <Box></Box>
             <Flex justify="end" gap="2" mt="3" gridColumn={"span 5"}>
@@ -155,6 +141,11 @@ export const StockModal : React.FC<StockModalProps> = ({
           </Grid>
         </Dialog.Content>
       </Dialog.Root>
+      <ErrorModal
+        open={errorOpen}
+        onOpenChange={setErrorOpen}
+        message={errorMessage}
+      />
     </>
   );
 };

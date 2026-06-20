@@ -5,7 +5,7 @@ import { ErrorModal } from "../../components/ErrorModal";
 import type { ProductRequest, ProductResponse } from "../../api/generated";
 import { ProductModal } from "./ProductModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilter, faPencil, faPlusCircle, faPrint, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faFilter, faPencil, faPlusCircle, faPrint, faTrash, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { Pagination } from "../../components/Pagination";
 import { ProductPrintModal } from "./ProductPrintModal";
 
@@ -103,9 +103,10 @@ export const ProductPage: React.FC = () => {
               <Table.Root variant="surface">
                 <Table.Header>
                   <Table.Row>
-                    <Table.ColumnHeaderCell width={"5%"}>Id</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell width={"10%"}>Modelo</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell width={"70%"}>Nombre</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell width={"20%"}>Categoria</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell width={"10%"}>Codigo</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell width={"45%"}>Nombre</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell width={"10%"}>Activo</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell width={"15%"}>Acciones</Table.ColumnHeaderCell>
                   </Table.Row>
                 </Table.Header>
@@ -113,9 +114,13 @@ export const ProductPage: React.FC = () => {
                   {products.map(product => {
                     return (
                       <Table.Row key={product.id}>
-                        <Table.Cell>{product.id}</Table.Cell>
-                        <Table.Cell>{product?.model?.code}</Table.Cell>
+                        <Table.Cell>{product?.category?.code} - {product?.category?.name}</Table.Cell>
+                        <Table.Cell>{product?.code}</Table.Cell>
                         <Table.Cell>{product.name}</Table.Cell>
+                        <Table.Cell>
+                          {product.active &&(<FontAwesomeIcon color="green" icon={faCheckCircle} />)}
+                          {!product.active &&(<FontAwesomeIcon color="red" icon={faXmarkCircle} />)}  
+                        </Table.Cell>
                         <Table.Cell>
                           <Tooltip content="Editar"><Button onClick={() => { EditEvent(product);}}><FontAwesomeIcon icon={faPencil} /></Button></Tooltip>
                           <Tooltip content="Imprimir"><Button color="blue" onClick={() => { setSelectedProduct(product); setIsPrintModalOpen(true);}}><FontAwesomeIcon icon={faPrint} /></Button></Tooltip>

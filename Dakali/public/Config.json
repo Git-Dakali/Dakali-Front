@@ -1,0 +1,12 @@
+{
+    "apiBaseUrl": "http://localhost:5041",
+    "apiKeyGoogleMap": "AIzaSyBG3yASKls__-_N-D3qfKP1j6Ow0q3xKJQ",
+    "configSale": {
+        "originSaleCode": "DKL",
+        "logisticsProviderCode": "DAR",
+        "deliveryStartTime": "15:00",
+        "deliveryEndTime": "21:00",
+        "shippingPrice": 6000,
+        "orderCutoffTime": "03:12"
+    }
+}

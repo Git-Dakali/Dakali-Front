@@ -10,14 +10,16 @@ export type SaleFilter = (Filter & {
     dni?: string;
     cuit?: string;
     date?: string;
-    deliveryDate?: string;
+    deliveryDateFrom?: string;
+    deliveryDateTo?: string;
     businessName?: string;
     address?: string;
     phone?: string;
     taxStatusId?: number;
     originSaleId?: number;
+    logisticsProviderId?: number;
     cityId?: number;
-    state?: string;
     skus: Array<string>;
+    states: Array<string>;
 });
 

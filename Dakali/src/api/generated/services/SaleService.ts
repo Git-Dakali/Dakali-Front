@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { ResultPageResponseOfSaleResponse } from '../models/ResultPageResponseOfSaleResponse';
 import type { SaleFilter } from '../models/SaleFilter';
+import type { SaleLocationRequest } from '../models/SaleLocationRequest';
 import type { SaleRequest } from '../models/SaleRequest';
 import type { SaleResponse } from '../models/SaleResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -96,24 +97,35 @@ export class SaleService {
     }
     /**
      * @param saleId
-     * @param longitude
-     * @param latitude
+     * @param isPrinted
+     * @returns any
+     * @throws ApiError
+     */
+    public static saleUpdateIsPrinted(
+        saleId?: number,
+        isPrinted?: boolean,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/Sale/UpdateIsPrinted',
+            query: {
+                'saleId': saleId,
+                'isPrinted': isPrinted,
+            },
+        });
+    }
+    /**
+     * @param request
      * @returns any
      * @throws ApiError
      */
     public static saleAddLocation(
-        saleId?: number,
-        longitude?: number,
-        latitude?: number,
+        request: SaleLocationRequest,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/Sale/AddLocation',
-            query: {
-                'SaleId': saleId,
-                'longitude': longitude,
-                'latitude': latitude,
-            },
+            body: request,
         });
     }
     /**
@@ -243,59 +255,19 @@ export class SaleService {
         });
     }
     /**
-     * @param saleId
-     * @returns SaleResponse
+     * @param saleIds
+     * @returns string
      * @throws ApiError
      */
-    public static saleReturn(
-        saleId: number,
-    ): CancelablePromise<SaleResponse> {
+    public static saleReportExcelDarLogitics(
+        saleIds?: string,
+    ): CancelablePromise<string> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Sale/Return',
-            body: saleId,
-        });
-    }
-    /**
-     * @param saleId
-     * @returns SaleResponse
-     * @throws ApiError
-     */
-    public static saleStored(
-        saleId: number,
-    ): CancelablePromise<SaleResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Sale/Stored',
-            body: saleId,
-        });
-    }
-    /**
-     * @param saleId
-     * @returns SaleResponse
-     * @throws ApiError
-     */
-    public static salePendingBilling(
-        saleId: number,
-    ): CancelablePromise<SaleResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Sale/PendingBilling',
-            body: saleId,
-        });
-    }
-    /**
-     * @param saleId
-     * @returns SaleResponse
-     * @throws ApiError
-     */
-    public static saleInvoiced(
-        saleId: number,
-    ): CancelablePromise<SaleResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/Sale/Invoiced',
-            body: saleId,
+            method: 'GET',
+            url: '/Sale/ReportExcelDarLogitics',
+            query: {
+                'SaleIds': saleIds,
+            },
         });
     }
 }

@@ -5,6 +5,7 @@
 import type { RequestGuid } from './RequestGuid';
 export type FieldRequest = (RequestGuid & {
     name: string;
+    value: string;
     sortOrder: number;
 });
 

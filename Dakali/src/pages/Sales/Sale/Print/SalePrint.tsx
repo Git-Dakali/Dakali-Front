@@ -40,7 +40,7 @@ export const SalePrint = React.forwardRef<HTMLDivElement, Props>(
                             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr"}}>
                                 <div>
                                     <div style={{display:"inline-block", fontSize: "40px", width:"100%", textAlign:"center", fontWeight: "bold"}}>{detail.product?.name}</div>
-                                    <div style={{display:"inline-block", fontSize: "15px", width:"100%", textAlign:"center", fontWeight: "bold"}}>{detail.variant?.name}</div>
+                                    <div style={{display:"inline-block", fontSize: "15px", width:"100%", textAlign:"center", fontWeight: "bold"}}>{detail.productSku?.variant?.name}</div>
                                 </div>
                             </div>
                         </div>

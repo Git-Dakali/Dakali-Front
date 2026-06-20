@@ -9,7 +9,7 @@ export type MenuItem = {
 export const menuData: MenuItem[] = [
   {
     id: "product",
-    label: "Configuracion",
+    label: "Productos",
     children: [
       {
         id: "Category",
@@ -101,6 +101,11 @@ export const menuData: MenuItem[] = [
         pageKey: "OriginSale",
       },
       {
+        id: "LogisticsProvider",
+        label: "Proveedor Logistico",
+        pageKey: "LogisticsProvider"
+      },
+      {
         id: "TaxStatus",
         label: "Estado Fiscal",
         pageKey: "TaxStatus",
@@ -109,6 +114,11 @@ export const menuData: MenuItem[] = [
         id: "Sales",
         label: "Ventas",
         pageKey: "Sales",
+      },
+      {
+        id: "ReturnOrders",
+        label: "Ordenes de Devolucion",
+        pageKey: "ReturnOrder"
       }
     ],
   },

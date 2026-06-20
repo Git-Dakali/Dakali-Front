@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
 import { Grid, Box, Table, Button, Flex, Tooltip, Heading, TextField } from "@radix-ui/themes";
-import { ErrorModal } from "../../components/ErrorModal";
-import { StockService, type StockEntryRequest, type StockRequest, type StockResponse } from "../../api/generated";
-import { StockModal } from "./StockModal";
+import { StockService, type StockRequest, type StockResponse } from "../../api/generated";
+import { StockRecountModal } from "./StockRecountModal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faBoxesStacked, faDollyBox, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { AddStockModal } from "./AddStockModal";
+import { faFilter, faBoxesStacked, faTrash, faPlusCircle, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { StockUpdateModal } from "./StockUpdateModal";
+import { StockModal } from "./StockModal";
 
 
 export const StockPage: React.FC = () => {
@@ -15,10 +15,9 @@ export const StockPage: React.FC = () => {
   const [searchString, setSearchString] = useState<string>("");
   const [filterSearchString, setFilterSearchString] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpenStockEntry, setIsModalOpenStockEntry] = useState(false);
+  const [isModalRecountOpen, setIsModalRecountOpen] = useState(false);
+  const [isModalOpenStockUpadate, setIsModalOpenStockUpadate] = useState(false);
   const [selectedStock, setSelectedStock] = useState<StockResponse | null>(null);
-  const [errorOpen, setErrorOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(()=> {
     StockService.stockGetAll({searchString}).then(data => {setStocks(data)});
@@ -37,39 +36,18 @@ export const StockPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const StockEntryService = async (stockEntry:StockEntryRequest)=>{
-    await StockService.stockStockEntry(stockEntry)
-    .then(()=>{ 
-        setRefreshStocks(!refreshStocks); 
-        setIsModalOpenStockEntry(false);
-    })
-    .catch((error) =>{ 
-        console.log({error});
-        setErrorMessage(error.body.message);
-        setErrorOpen(true);
-        setRefreshStocks(!refreshStocks);
-    });
+  const RecountEvent =  () =>{
+    setSelectedStock(null);
+    setIsModalRecountOpen(true);
   };
   
-  const CreateStockService = async (stockRequest: StockRequest) => {
-
-      await StockService.stockCreate(stockRequest)
-        .then(()=>{ 
-            setRefreshStocks(!refreshStocks); 
-            setIsModalOpen(false);
-        })
-        .catch((error) => 
-        { 
-          console.log({error});
-          setErrorMessage(error.body.message);
-          setErrorOpen(true);
-          setRefreshStocks(!refreshStocks);
-        });
+  const OnSaved = () => {
+      setRefreshStocks(!refreshStocks);
   };
 
-  const AddStockEntryEvent = (stock:StockResponse) => {
+  const StockUpadateEvent = (stock:StockResponse) => {
     setSelectedStock(stock);
-    setIsModalOpenStockEntry(true);
+    setIsModalOpenStockUpadate(true);
   };
 
   return (
@@ -86,8 +64,9 @@ export const StockPage: React.FC = () => {
                 <Flex justify={"start"}>
                   <Button onClick={Filtrar}><FontAwesomeIcon icon={faFilter} /></Button>
                 </Flex>
-                <Flex justify={"end"}>
+                <Flex justify={"end"} gap={"2"}>
                     <Tooltip content="Crear"><Button onClick={CreateEvent}><FontAwesomeIcon icon={faPlusCircle} /></Button></Tooltip>
+                    <Tooltip content="Recuento"><Button onClick={RecountEvent} color="orange"><FontAwesomeIcon icon={faBoxesStacked} /></Button></Tooltip>
                 </Flex>
                 <Box gridColumn={"span 3"}>
                     <Table.Root variant="surface">
@@ -109,9 +88,9 @@ export const StockPage: React.FC = () => {
                         {stocks.map(stock => {
                             return (
                             <Table.Row key={stock.guid}>
-                                <Table.Cell>{stock.product?.model?.code}-{stock.product?.name}</Table.Cell>
-                                <Table.Cell>{stock.variant?.name}</Table.Cell>
-                                <Table.Cell>{stock.color?.name}</Table.Cell>
+                                <Table.Cell>{stock.productSku?.product?.code}-{stock.productSku?.product?.name}</Table.Cell>
+                                <Table.Cell>{stock.productSku?.variant?.name}</Table.Cell>
+                                <Table.Cell>{stock.productSku?.color?.name}</Table.Cell>
                                 <Table.Cell>{stock.location?.hallway?.code}-{stock.location?.column?.code}-{stock.location?.level?.code}</Table.Cell>
                                 <Table.Cell>{stock.physical}</Table.Cell>
                                 <Table.Cell>{stock.reserved}</Table.Cell>
@@ -119,8 +98,7 @@ export const StockPage: React.FC = () => {
                                 <Table.Cell>{stock.free}</Table.Cell>
                                 <Table.Cell>{stock.location?.state?.name}</Table.Cell>
                                 <Table.Cell>
-                                    <Tooltip content="Agregar Stock"><Button onClick={() => { AddStockEntryEvent(stock);}} color="green"><FontAwesomeIcon icon={faBoxesStacked} /></Button></Tooltip>
-                                    <Tooltip content="Mover Stock"><Button onClick={() => { AddStockEntryEvent(stock);}}><FontAwesomeIcon icon={faDollyBox} /></Button></Tooltip>
+                                    <Tooltip content="Modificar"><Button onClick={() => { StockUpadateEvent(stock);}} ><FontAwesomeIcon icon={faPencilAlt} /></Button></Tooltip>
                                     <Tooltip content="Eliminar"><Button onClick={() => { DeleteEvent(stock);}} color="red"><FontAwesomeIcon icon={faTrash} /></Button></Tooltip>
                                 </Table.Cell>
                             </Table.Row>
@@ -138,23 +116,26 @@ export const StockPage: React.FC = () => {
           key={selectedStock?.id ?? "new"}  
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          onSave={CreateStockService}
+          onSave={OnSaved}
         />
       )}
-      {isModalOpenStockEntry && (
-        <AddStockModal
+      {isModalRecountOpen && (
+        <StockRecountModal
+          key={selectedStock?.id ?? "new"}  
+          open={isModalRecountOpen}
+          onOpenChange={setIsModalRecountOpen}
+          onSave={OnSaved}
+        />
+      )}
+      {isModalOpenStockUpadate && (
+        <StockUpdateModal
           key={selectedStock?.id??0}  
-          open={isModalOpenStockEntry}
-          onOpenChange={setIsModalOpenStockEntry}
+          open={isModalOpenStockUpadate}
+          onOpenChange={setIsModalOpenStockUpadate}
           stock={selectedStock as StockResponse}
-          onSave={StockEntryService}
+          onSave={OnSaved}
         />
       )}
-      <ErrorModal
-        open={errorOpen}
-        onOpenChange={setErrorOpen}
-        message={errorMessage}
-      />
     </>
     
   );

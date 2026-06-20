@@ -5,7 +5,7 @@
 import type { Response } from './Response';
 import type { StoredFileResponse } from './StoredFileResponse';
 export type HistoricSaleResponse = (Response & {
-    creationDate: string;
+    creationDate?: string;
     state: string;
     description: string;
     storedFile: StoredFileResponse;

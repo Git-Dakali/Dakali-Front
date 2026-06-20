@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Select, { } from "react-select"
 import { format } from "date-fns";
 import { Dialog, Button, Flex, Text, TextField, Box, Grid, Tabs, TextArea, Heading, Badge, Table, Tooltip, Checkbox, Skeleton } from "@radix-ui/themes";
-import { CityService, OriginSaleService, ProductService, ProvinceService, SaleDetailService, SaleService, TaxStatusService, type CityRequest, type CityResponse, type OriginSaleRequest, 
+import { CityService, LogisticsProviderService, OriginSaleService, ProductService, ProvinceService, SaleDetailService, SaleService, TaxStatusService, type CityRequest, type CityResponse, type LogisticsProviderRequest, type LogisticsProviderResponse, type OriginSaleRequest, 
         type OriginSaleResponse, type ProductResponse, type ProvinceRequest, type ProvinceResponse, type SaleDetailRequest, type SaleDetailResponse, type SaleRequest, type SaleResponse, 
         type TaxStatusRequest, type TaxStatusResponse } from "../../../api/generated";
 import DatePicker from "react-datepicker";
@@ -10,7 +10,9 @@ import TimePicker from "react-time-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faCheckCircle, faXmarkCircle, faXmarkSquare, faCheckSquare, faTrash, faAsterisk } from "@fortawesome/free-solid-svg-icons";
 import { ErrorModal } from "../../../components/ErrorModal";
-import { parse } from "date-fns";
+import { parse, addDays } from "date-fns";
+import { useConfig } from "../../../config/useConfig";
+
 
 
 type Option = { value: string; label: string };
@@ -19,51 +21,56 @@ type SaleModalProps = {
   open: boolean;
   sale: SaleResponse | null;
   onOpenChange: (open: boolean) => void;
-  onSave: (values: SaleRequest) => Promise<void> | void;
+  onSave: () => Promise<void> | void;
+  onCancel: () => Promise<void> | void;
 };
 
 export const SaleModal : React.FC<SaleModalProps> = ({
   open,
   sale,
   onOpenChange,
-  onSave
+  onSave,
+  onCancel
 }) => {
+  const config = useConfig();
   const [numberFormatArg] = useState(new Intl.NumberFormat("es-AR"));
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [number, setNumber] = useState(0 );
+  const [isPrinted, setIsPrinted] = useState(false);
+  const [isReverseLogistics, setIsReverseLogistics] = useState(false);
+  const [number, setNumber] = useState(0);
   const [arcaNumber, setArcaNumber] = useState("" );
   const [identifier, setIdentifier] = useState("" );
   const [dni, setDni] = useState("");
   const [cuit, setCuit] = useState("");
-  const [date, setDate] = useState<Date|null>(null);
-  const [deliveryDate, setDeliveryDate] = useState<Date|null>(null);
-  const [deliveryStartTime, setDeliveryStartTime] = useState<string|null>("09:00");
-  const [deliveryEndTime, setDeliveryEndTime] = useState<string|null>("21:00");
+  const [date, setDate] = useState<Date|null>(new Date());
+  const [deliveryDate, setDeliveryDate] = useState<Date|null>();
+  const [deliveryStartTime, setDeliveryStartTime] = useState<string|null>(config.configSale.deliveryStartTime);
+  const [deliveryEndTime, setDeliveryEndTime] = useState<string|null>(config.configSale.deliveryEndTime);
   const [businessName, setBusinessName] = useState("");
   const [address, setAddress] = useState("");
   const [floor, setFloor] = useState("");
   const [apartment, setApartment] = useState("");
   const [phone, setPhone] = useState("");
   const [observation, setObservation] = useState("");
-  const [grossPrice, setGrossPrice] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [discounts, setDiscounts] = useState(0);
-  const [shippingPrice, setShippingPrice] = useState(6000);
+  //const [grossPrice, setGrossPrice] = useState(0);
+  //const [totalPrice, setTotalPrice] = useState(0);
+  //const [discounts, setDiscounts] = useState(0);
+  const [shippingPrice, setShippingPrice] = useState(config.configSale.shippingPrice);
   const [state, setState] = useState("");
-  //const [pdfInvoice, setPdfInvoice] = useState(sale.pdfInvoice);
-    const [saleDetails, setSaleDetails] = useState<SaleDetailResponse[]>([]);
+  const [saleDetails, setSaleDetails] = useState<SaleDetailResponse[]>([]);
 
-   const [refreshDetails, setRefreshDetails] = useState(false);
+  const [refreshDetails, setRefreshDetails] = useState(false);
 
-  const [priceManual, setPriceManual] = useState<number>(0);
+  const [priceDetail, setPriceDetail] = useState<number>(0);
   const [count, setCount] = useState<number>(1);
-  const [isExtra, setIsExtra] = useState(false);
+  const [isExchangeItem, setIsExchangeItem] = useState(false);
 
   const [selectedOptionTaxStatus, setSelectedOptionTaxStatus] = useState<Option|null>();
   const [selectedOptionOriginSale, setSelectedOptionOriginSale] = useState<Option|null>();
   const [selectedOptionProvince, setSelectedOptionProvince] = useState<Option|null>();
   const [selectedOptionCity, setSelectedOptionCity] = useState<Option|null>();
+  const [selectedOptionLogisticsProvider, setSelectedOptionLogisticsProvider] = useState<Option|null>();
   const [selectedOptionProduct, setSelectedOptionProduct] = useState<Option|null>();
   const [selectedOptionVariant, setSelectedOptionVariant] = useState<Option|null>();
   const [selectedOptionColor, setSelectedOptionColor] = useState<Option|null>();
@@ -72,6 +79,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   const [listOriginSale, setListOriginSale] = useState<OriginSaleResponse[]>([]);
   const [listProvince, setListProvince] = useState<ProvinceResponse[]>([]);
   const [listCity, setListCity] = useState<CityResponse[]>([]);
+  const [listLogisticsProvider, setListLogisticsProvider] = useState<LogisticsProviderResponse[]>([]);
   const [listProducts, setListProducts] = useState<ProductResponse[]>([]);
   const [isLoadingCity, setIsLoadingCity] = useState(false);
 
@@ -79,11 +87,13 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   const [optionOriginSale, setOptionOriginSale] = useState<Option[]>([]);
   const [optionProvince, setOptionProvince] = useState<Option[]>([]);
   const [optionCity, setOptionCity] = useState<Option[]>([]);
+  const [optionLogisticsProvider, setOptionLogisticsProvider] = useState<Option[]>([]);
   
 
   const [isAdding, setIsAdding] = useState(false);
   
   useEffect(()=> {
+    
     const taxStatusPromise = TaxStatusService.taxStatusGetAll().then((data) => { 
         setListTaxStatus(data);
         setOptionTaxStatus(data.map(x => { return { value: x.id.toString(), label: x.code + "-" + x.name }; }));
@@ -99,8 +109,13 @@ export const SaleModal : React.FC<SaleModalProps> = ({
 
         if(sale?.originSale)
             setSelectedOptionOriginSale({value: sale.originSale.code, label: sale.originSale.code + "-" + sale.originSale.name});
-        else
-            setSelectedOptionOriginSale(valueOptions.find(x => x.value === "DKL"));
+        else if((sale?.id ?? 0) === 0)
+        {
+            const option = valueOptions.find(x => x.value === config.configSale.originSaleCode);
+
+            if(option)
+                setSelectedOptionOriginSale(option);
+        }
     });
     const provincePromise = ProvinceService.provinceGetAll().then((data)=> { 
         setListProvince(data); 
@@ -113,68 +128,133 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             setSelectedOptionCity({ value: sale.city.id.toString(), label: sale.city.zipCode + "-" + sale.city.name });
     });
 
+    const logisticsProviderPromise = LogisticsProviderService.logisticsProviderGetAll().then((data)=> { 
+        setListLogisticsProvider(data); 
+        const valueOptions = data.map(x => { return { value: x.code, label: x.code + "-" + x.name }; }); 
+        setOptionLogisticsProvider(valueOptions); 
+
+        if(sale?.logisticsProvider)
+            setSelectedOptionLogisticsProvider({value: sale.logisticsProvider.code, label: sale.logisticsProvider.code + "-" + sale.logisticsProvider.name});
+        else if((sale?.id ?? 0) === 0)
+        {
+            const option = valueOptions.find(x => x.value === config.configSale.logisticsProviderCode);
+
+            if(option)
+                setSelectedOptionLogisticsProvider(option);
+        }
+            
+    });
+
     const productPromise = ProductService.productGetAll().then((data)=>{ setListProducts(data); });
 
-    Promise.all([taxStatusPromise, originSalePromise, provincePromise, productPromise]).then(() => {
+    Promise.all([taxStatusPromise, originSalePromise, provincePromise, logisticsProviderPromise, productPromise]).then(() => {
 
-        SaleService.saleGet(sale?.id).then(data => {
-            setNumber(sale?.number ?? 0 );
-            setArcaNumber(sale?.arcaNumber ?? "" );
-            setIdentifier(sale?.identifier ?? "" );
-            setDni(data?.dni ?? "");
-            setCuit(sale?.cuit ?? "");
-            setDate(parse(data.date ?? "", "dd-MM-yyyy HH:mm", new Date()));
-            setDeliveryDate(parse(data.deliveryDate??"", "dd-MM-yyyy HH:mm", new Date()));
-            setDeliveryStartTime(sale?.deliveryStartTime??"09:00");
-            setDeliveryEndTime(sale?.deliveryEndTime ?? "21:00");
-            setBusinessName(sale?.businessName ?? "");
-            setAddress(sale?.address ?? "");
-            setFloor(sale?.floor ?? "");
-            setApartment(sale?.apartment ?? "");
-            setPhone(sale?.phone ?? "");
-            setObservation(sale?.observation ?? "");
-            setGrossPrice(sale?.grossPrice ?? 0);
-            setTotalPrice(sale?.totalPrice ?? 0);
-            setDiscounts(sale?.discounts ?? 0);
-            setShippingPrice(sale?.shippingPrice ?? 6000);
-            setState(sale?.state ?? "Creado");
-            //const [pdfInvoice, setPdfInvoice] = useState(sale.pdfInvoice);
-            setSaleDetails(sale?.saleDetails ?? []);
-        })
+        if((sale?.id ?? 0) === 0 )
+        {
+            const [h, m] = config.configSale.orderCutoffTime.split(":").map(Number);
+            const now = new Date();
+            const cutoff = new Date();
+            cutoff.setHours(h, m, 0, 0);
+
+            const isBeforeCutoff = (now.getTime() < cutoff.getTime());
+            if(isBeforeCutoff)
+                setDeliveryDate(now);
+            else
+                setDeliveryDate(addDays(now, 1));
+        }
+        else 
+        {
+            SaleService.saleGet(sale?.id).then(data => {
+                setIsPrinted(data.isPrinted);
+                setIsReverseLogistics(data.isReverseLogistics);
+                setNumber(data?.number ?? 0 );
+                setArcaNumber(data?.arcaNumber ?? "" );
+                setIdentifier(data?.identifier ?? "" );
+                setDni(data?.dni ?? "");
+                setCuit(data?.cuit ?? "");
+                setDate(parse(data.date ?? "", "dd-MM-yyyy HH:mm", new Date()));
+                setDeliveryDate(parse(data.deliveryDate??"", "dd-MM-yyyy HH:mm", new Date()));
+                setDeliveryStartTime(data?.deliveryStartTime??"09:00");
+                setDeliveryEndTime(data?.deliveryEndTime ?? "21:00");
+                setBusinessName(data?.businessName ?? "");
+                setAddress(data?.address ?? "");
+                setFloor(data?.floor ?? "");
+                setApartment(data?.apartment ?? "");
+                setPhone(data?.phone ?? "");
+                setObservation(data?.observation ?? "");
+                //setGrossPrice(data?.grossPrice ?? 0);
+                //setTotalPrice(data?.totalPrice ?? 0);
+                //setDiscounts(data?.discounts ?? 0);
+                setShippingPrice(data?.shippingPrice ?? 0);
+                setState(data?.state ?? "Creado");
+                //const [pdfInvoice, setPdfInvoice] = useState(sale.pdfInvoice);
+                setSaleDetails(data?.saleDetails ?? []);
+            });
+        }
     })
   }, []);
-
-  useEffect(() => {
-    const detailsNotExtra = saleDetails.filter(x => !x.isExtra);
-    const totalCount = detailsNotExtra.reduce((total, detail) => total + detail.count, 0);
-    const price = detailsNotExtra.reduce((total, detail) => total + detail.price, 0);
-    const discountsPrice = totalCount * shippingPrice;
-    setGrossPrice(price)
-    setDiscounts(discountsPrice);
-    setTotalPrice((price - discountsPrice) + shippingPrice);
-  }, [saleDetails]);
 
   useEffect(() => {
     if( (sale?.id ?? 0) > 0)
         SaleDetailService.saleDetailGetBySale(sale?.id).then((data) => { setSaleDetails(data); });
   }, [refreshDetails]);
 
+  const GetGrossPrice = (details : SaleDetailResponse[]) => {
+    return details.reduce((total, value) => total + value.price, 0);
+  };
+
+  const GetDiscounts = (details : SaleDetailResponse[]) => {
+    const counts = details.reduce((total, value) => {
+        if(value.isExchangeItem)
+            return total;
+        return total + value.count
+    }, 0);
+    
+    if(counts <= 1)
+        return 0;
+
+    return (counts * shippingPrice) - shippingPrice;
+  };
+
+  const grossPrice = useMemo(() => {
+    return GetGrossPrice(saleDetails);
+  }, [saleDetails]);
+
+  const discounts = useMemo(() => {
+    return GetDiscounts(saleDetails);
+  }, [saleDetails, shippingPrice]);
+
+  const totalPrice = useMemo(() => (grossPrice - discounts) , [grossPrice, discounts]);
+
   const taxStatus = useMemo(() => { return listTaxStatus.find(p => p.id.toString() === selectedOptionTaxStatus?.value) ?? null; }, [selectedOptionTaxStatus, listTaxStatus]);
   const originSale = useMemo(() => { return listOriginSale.find(p => p.code === selectedOptionOriginSale?.value) ?? null; }, [selectedOptionOriginSale, listOriginSale]);
   const province = useMemo(() => { return listProvince.find(x => x.id.toString() === selectedOptionProvince?.value); }, [selectedOptionProvince, listProvince]);
   const city = useMemo(() => { return listCity.find(p => p.id.toString() === selectedOptionCity?.value) ?? null; }, [selectedOptionCity, listCity]);
+  const logisticsProvider = useMemo(() => { return listLogisticsProvider.find(p => p.code === selectedOptionLogisticsProvider?.value) ?? null; }, [selectedOptionLogisticsProvider, listLogisticsProvider]);
   const product = useMemo(() => { return listProducts.find(p => p.id.toString() === selectedOptionProduct?.value) ?? null; }, [selectedOptionProduct, listProducts]);
   const listVariants = useMemo(() => { return product?.variants ?? []; }, [product]);
   const variant = useMemo(() => { return listVariants.find(p => p.id.toString() === selectedOptionVariant?.value) ?? null; }, [selectedOptionVariant, listVariants]);
-  const listColors = useMemo(() => { return variant?.colorsHex ?? []; }, [variant]);
+  const listColors = useMemo(() => { return product?.colors ?? []; }, [product]);
   const color = useMemo(() => { return listColors.find(p => p.id.toString() === selectedOptionColor?.value) ?? null; }, [selectedOptionColor, listColors]);
   
   const optionProducts = useMemo(() => { return listProducts.map(item => { return { value: item.id.toString(), label: item.name }; })}, [listProducts]);
   const optionVariants = useMemo(() => { return listVariants.map(item => { return { value: item.id.toString(), label: item.name }; })}, [listVariants]);
   const optionColors = useMemo(() => { return listColors.map(item => { return { value: item.id.toString(), label: item.name }; })}, [listColors]);
 
+  const priceItem = useMemo(() => {
+    if(count === 0 || product === null)
+        return 0;
+    if(isExchangeItem)
+        return priceDetail;
+    else
+        return count * product.salePrice;
+  }, [count, product, priceDetail, isExchangeItem]);
+
     useEffect(() => {
-        setIsLoadingCity(true);
+
+        if((province ?? null) === null)
+            return;
+
         CityService.cityGetByCity(province as ProvinceRequest).then((data) => { 
             setListCity(data); 
             setOptionCity(data.map(x => { return { value: x.id.toString(), label: x.zipCode + "-" + x.name }; }));
@@ -184,23 +264,17 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             if(findCity === null || findCity === undefined)
                 setSelectedOptionCity(null);
         }).finally(() => {setIsLoadingCity(false);});
-      
-    }, [province])
+        
+    }, [province]);
 
-  const price = useMemo(() => {
-        console.log({variant, count});
-        return (variant?.salePrice ?? 0) * count;
-  }, [variant, count]);
-
-  useEffect(() => {
-    setPriceManual(price);
-  }, [price]);
-
-  const handleSubmit = () => {
+  const GetCurrentSale = () => {
+    
     const saleRequest = {} as SaleRequest;
     saleRequest.id = sale?.id ?? 0;
     saleRequest.guid = sale?.guid ?? crypto.randomUUID();
     saleRequest.searchString = sale?.searchString ?? "";
+    saleRequest.isPrinted = isPrinted;
+    saleRequest.isReverseLogistics = isReverseLogistics;
     saleRequest.identifier = identifier;
     saleRequest.dni = dni;
     saleRequest.cuit = cuit;
@@ -225,10 +299,35 @@ export const SaleModal : React.FC<SaleModalProps> = ({
     saleRequest.taxStatus = taxStatus as TaxStatusRequest;
     saleRequest.originSale = originSale as OriginSaleRequest;
     saleRequest.city = city as CityRequest;
-    saleRequest.saleDetails = saleDetails ?? [];
+    saleRequest.logisticsProvider = logisticsProvider as LogisticsProviderRequest;
+    saleRequest.saleDetails = (saleDetails as SaleDetailRequest[]) ?? [];
 
-    onSave(saleRequest);
+    return saleRequest;
   };
+
+    const SaleSave = (saleRequest : SaleRequest) => {
+        
+        if(saleRequest.id == 0)
+        {
+            return SaleService.saleCreate(saleRequest)
+                .then(()=> onOpenChange(false))
+                .catch((error) => { 
+                    console.log({error});
+                    setErrorMessage(error.body.message);
+                    setErrorOpen(true);
+                });
+        }
+        else
+        {
+            return SaleService.saleUpdate(saleRequest)
+                .then(()=> onOpenChange(false) )
+                .catch((error) => { 
+                    console.log({error});
+                    setErrorMessage(error.body.message);
+                    setErrorOpen(true);
+                });
+        }
+    };
 
   const AddDetail = () => {
 
@@ -272,16 +371,23 @@ export const SaleModal : React.FC<SaleModalProps> = ({
     detail.guid = crypto.randomUUID();
     detail.searchString = "";
     detail.product = product ?? undefined;
-    detail.variant = variant ?? undefined;
-    detail.color = color ?? undefined;
+    detail.productSku = product.skus.find(x => x.variant?.id === variant.id && x.color?.id === color.id);
     detail.count = count;
-    detail.price = priceManual;
-    detail.isExtra = isExtra;
+    detail.price = priceItem;
+    detail.isExchangeItem = isExchangeItem;
     detail.stock = undefined;
 
     if((sale?.id ?? 0) > 0)
     {
-        SaleDetailService.saleDetailCreate(detail as SaleDetailRequest, sale?.id ?? 0)
+        const saleCurrent = GetCurrentSale();
+        const details = saleCurrent.saleDetails.concat([])
+        details.push(detail as SaleDetailRequest);
+        saleCurrent.saleDetails = details;
+        saleCurrent.grossPrice = GetGrossPrice(saleCurrent.saleDetails);
+        saleCurrent.discounts = GetDiscounts(saleCurrent.saleDetails);
+        saleCurrent.totalPrice = (saleCurrent.grossPrice - saleCurrent.discounts);
+
+        SaleService.saleUpdate(saleCurrent)
         .then(() => {
             setRefreshDetails(!refreshDetails);
             setIsAdding(false);
@@ -290,13 +396,13 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             setSelectedOptionVariant(null);
             setSelectedOptionColor(null);
             setCount(1);
-            setPriceManual(0);
-            setIsExtra(false);
+            setPriceDetail(0);
+            setIsExchangeItem(false);    
         })
         .catch((error) => { 
-          console.log({error});
-          setErrorMessage(error.body.message);
-          setErrorOpen(true);
+            console.log({error});
+            setErrorMessage(error.body.message);
+            setErrorOpen(true);
         });
     }
     else
@@ -308,8 +414,8 @@ export const SaleModal : React.FC<SaleModalProps> = ({
         setSelectedOptionVariant(null);
         setSelectedOptionColor(null);
         setCount(1);
-        setPriceManual(0);
-        setIsExtra(false);
+        setPriceDetail(0);
+        setIsExchangeItem(false);
     }
   };
 
@@ -317,15 +423,24 @@ export const SaleModal : React.FC<SaleModalProps> = ({
 
     if((sale?.id ?? 0) > 0)
     {
-        SaleDetailService.saleDetailDelete(detail, sale?.id).then(() => {
-            setRefreshDetails(!refreshDetails);
-        });
-
+        const currentSale = GetCurrentSale();
+        currentSale.saleDetails = currentSale.saleDetails.filter(x => x.guid !== detail.guid) 
+        currentSale.grossPrice = GetGrossPrice(currentSale.saleDetails);
+        currentSale.discounts = GetDiscounts(currentSale.saleDetails);
+        currentSale.totalPrice = (currentSale.grossPrice - currentSale.discounts);
+        SaleService.saleUpdate(currentSale)
+            .then(() => setRefreshDetails(!refreshDetails))
+            .catch((error) => { 
+                console.log({error});
+                setErrorMessage(error.body.message);
+                setErrorOpen(true);
+            });
     }
-    else{
+    else
+    {
         setSaleDetails(saleDetails.filter(x => x.guid !== detail.guid));
     }
-    
+        
   };
 
   const CancelDetail = () => {
@@ -339,7 +454,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
   return (
     <>
       <Dialog.Root open={open} onOpenChange={onOpenChange}>
-        <Dialog.Content minWidth="80%" onInteractOutside={(e) => e.preventDefault()}>
+        <Dialog.Content minWidth="70%" onInteractOutside={(e) => e.preventDefault()}>
           <Dialog.Title>{"Venta"}</Dialog.Title>
           <Grid columns="1fr 1fr 1fr 1fr 1fr">
             <Box></Box>
@@ -384,12 +499,22 @@ export const SaleModal : React.FC<SaleModalProps> = ({
             </Box>
           </Grid>
           <br></br>
-          <Grid columns="1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" gap="3" rows="auto 1fr auto" width="auto" height="100%">
+          <Grid columns="1fr 1fr 1fr 1fr 1fr 1fr 1fr" gap="3" rows="auto 1fr auto" width="auto" height="100%">
             <Box></Box>
             <Box gridColumn={"span 2"}>
               <Text size="2" mb="1" style={{ display: "block" }}>Origen Venta<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
               <Select options={optionOriginSale} value={selectedOptionOriginSale} onChange={option=> setSelectedOptionOriginSale(option as Option) }/>
             </Box>
+            <Box gridColumn={"span 2"}>
+                <Text size="2" mb="1" style={{ display: "block" }}>Proveedor Logistico<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
+                <Select options={optionLogisticsProvider} value={selectedOptionLogisticsProvider} onChange={option=> { setSelectedOptionLogisticsProvider(option as Option); } }/>
+            </Box>
+            <Box>
+                <Text size="2" mb="1" style={{ display: "block" }}>Identificador</Text>
+                <TextField.Root value={identifier} onChange={(e) => setIdentifier(e.target.value)}/>
+            </Box>
+            <Box></Box>
+            <Box></Box>
             <Box>
                 <Text size="2" mb="1" style={{ display: "block" }}>Fecha Emision<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
                 <DatePicker selected={date} dateFormat="dd-MM-yyyy" onChange={(value:Date | null) => setDate(value)} />
@@ -407,15 +532,17 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                 <TimePicker value={deliveryEndTime} format="HH:mm" onChange={(time:string|null) => setDeliveryEndTime(time)} disableClock/>
             </Box>
             <Box>
+                <Text size="2" mb="1">Es Logistica Inversa</Text>
+                <Flex align="center" gap="2"><Checkbox defaultChecked checked={isReverseLogistics} onCheckedChange={() => setIsReverseLogistics(!isReverseLogistics)} /></Flex>
             </Box>
             <Box></Box>
             <Box></Box>
-            <Box></Box>
-            <Box gridColumn={"span 7"}>
+            <Box gridColumn={"span 5"}>
                 <Text size="2" mb="1" style={{ display: "block" }}>Observacion</Text>
                 <TextArea rows={4} value={observation} onChange={(e) => setObservation(e.target.value)}/>
             </Box>
-            <Box gridColumn={"span 10"}>
+            <Box></Box>
+            <Box gridColumn={"span 7"}>
               <Tabs.Root defaultValue="Destinatario">
               <Tabs.List>
                   <Tabs.Trigger value="Destinatario">Destinatario</Tabs.Trigger>
@@ -431,7 +558,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                             </Box>
                             <Box gridColumn={"span 2"}>
                                 <Text size="2" mb="1" style={{ display: "block" }}>Provincia</Text>
-                                <Select options={optionProvince} value={selectedOptionProvince} onChange={option=> setSelectedOptionProvince(option as Option) }/>
+                                <Select options={optionProvince} value={selectedOptionProvince} onChange={option=> { setIsLoadingCity(true); setSelectedOptionProvince(option as Option); } }/>
                             </Box>
                             <Box gridColumn={"span 2"}>
                                 <Text size="2" mb="1" style={{ display: "block" }}>Localidad<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
@@ -459,7 +586,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                             </Box>
                             <Box gridColumn={"span 2"}>
                                 <Text size="2" mb="1" style={{ display: "block" }}>Telefono<FontAwesomeIcon color="red" icon={faAsterisk} /></Text>
-                                <TextField.Root value={phone} onChange={(e) => setPhone(e.target.value)}/>
+                                <TextField.Root value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^0-9+]/g, "").replace(/(?!^)\+/g, ""))}/>
                             </Box>
                             <Box></Box>
                             <Box></Box>
@@ -485,7 +612,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
               </Box>
               </Tabs.Root>
             </Box>
-            <Box gridColumn={"span 10"} style={{ background: "var(--gray-2)", borderRadius: "var(--radius-3)", padding: "1%" }}>
+            <Box gridColumn={"span 7"} style={{ background: "var(--gray-2)", borderRadius: "var(--radius-3)", padding: "1%" }}>
                 <Grid columns="1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" gap="3" rows="auto 1fr auto" width="auto" height="100%">
                     {!isAdding && (
                         <Box gridColumn={"span 10"}>
@@ -499,7 +626,7 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                             <>
                                 <Box gridColumn={"span 2"}>
                                     <Text size="2" mb="1" style={{ display: "block" }}>Producto</Text>
-                                    <Select options={optionProducts} value={selectedOptionProduct} onChange={option=> setSelectedOptionProduct(option as Option) }/>
+                                    <Select options={optionProducts} value={selectedOptionProduct} onChange={option=> {setSelectedOptionProduct(option as Option); }}/>
                                 </Box>
                                 <Box gridColumn={"span 2"}>
                                     <Text size="2" mb="1" style={{ display: "block" }}>Variante</Text>
@@ -511,15 +638,17 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                                 </Box>
                                 <Box>
                                     <Text size="2" mb="1" style={{ display: "block" }}>Cantidad</Text>
-                                    <TextField.Root type="number" value={count.toString()} onChange={(e) => setCount(Number.parseInt(e.target.value))}/>
+                                    <TextField.Root type="number" value={count.toString()} onChange={(e) => { const value = Number.parseInt(e.target.value);  setCount(value); setPriceDetail(value * (product?.salePrice ?? 0)) }}/>
                                 </Box>
                                 <Box>
                                     <Text size="2" mb="1" style={{ display: "block" }}>Precio</Text>
-                                    <TextField.Root type="number" value={priceManual.toString()} disabled/>
+                                    {(isExchangeItem 
+                                        ? (<TextField.Root type="number" value={priceItem.toString()} onChange={(e) => {  setPriceDetail(Number.parseInt(e.target.value));  }}/>) 
+                                        : (<TextField.Root type="number" value={priceItem.toString()} onChange={(e) => {  setPriceDetail(Number.parseInt(e.target.value));  }} disabled/>) )}
                                 </Box>
                                 <Box>
-                                    <Text size="2" mb="1" style={{ display: "block" }}>Es Extrta?</Text>
-                                    <Flex align="center" gap="2"><Checkbox size="3" checked={isExtra} onCheckedChange={(value) => setIsExtra(value === true)} /></Flex>
+                                    <Text size="2" mb="1" style={{ display: "block" }}>Es Intercambio?</Text>
+                                    <Flex align="center" gap="2"><Checkbox size="3" checked={isExchangeItem} onCheckedChange={(value) => setIsExchangeItem(value === true)} /></Flex>
                                 </Box>
                                 <Box>
                                     <Tooltip content="Aceptar"><Button color="green" onClick={() => { AddDetail();}}><FontAwesomeIcon icon={faCheckCircle} /></Button></Tooltip>
@@ -530,31 +659,33 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                     }
                     
                     <Box gridColumn={"span 10"}>
-                        <Table.Root variant="surface">
+                        <Table.Root variant="surface" size={"1"}>
                             <Table.Header>
-                            <Table.Row>
-                                <Table.ColumnHeaderCell width={"20%"}>Producto</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"15%"}>Variante</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"15%"}>Color</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"5%"}>Cantidad</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"5%"}>Precio</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"5%"}>Es Extra?</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"25%"}>Ubicacion</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell width={"10%"}>Acciones</Table.ColumnHeaderCell>
-                            </Table.Row>
+                                <Table.Row>
+                                    <Table.ColumnHeaderCell width={"20%"}>Producto</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"10%"}>Variante</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"10%"}>Color</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"10%"}>SKU</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"5%"}>Cantidad</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"5%"}>Precio</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"5%"}>Es Cambio?</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"25%"}>Ubicacion</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell width={"10%"}>Acciones</Table.ColumnHeaderCell>
+                                </Table.Row>
                             </Table.Header>
                             <Table.Body>
                             {(saleDetails ?? []).map(saleDetail => {
                                 return (
                                 <Table.Row key={saleDetail.guid}>
-                                    <Table.Cell>{saleDetail.product?.model?.code}-{saleDetail.product?.name}</Table.Cell>
-                                    <Table.Cell>{saleDetail.variant?.name}</Table.Cell>
-                                    <Table.Cell>{saleDetail.color?.name}</Table.Cell>
+                                    <Table.Cell>{saleDetail.product?.code}-{saleDetail.product?.name}</Table.Cell>
+                                    <Table.Cell>{saleDetail.productSku?.variant?.name}</Table.Cell>
+                                    <Table.Cell>{saleDetail.productSku?.color?.name}</Table.Cell>
+                                    <Table.Cell>{saleDetail.productSku?.sku}</Table.Cell>
                                     <Table.Cell>{saleDetail.count}</Table.Cell>
                                     <Table.Cell>{saleDetail.price}</Table.Cell>
                                     <Table.Cell>
                                         {
-                                            saleDetail.isExtra 
+                                            saleDetail.isExchangeItem
                                                 ?(<FontAwesomeIcon icon={faCheckSquare} color="green"/>) 
                                                 :(<FontAwesomeIcon icon={faXmarkSquare} color="red" />)
                                         }
@@ -572,9 +703,9 @@ export const SaleModal : React.FC<SaleModalProps> = ({
                 </Grid>
             </Box>
             
-            <Flex justify="end" gap="2" mt="3" gridColumn={"span 10"}>
-              <Dialog.Close><Button color="gray">Cancelar</Button></Dialog.Close>
-              <Button onClick={handleSubmit}>Guardar</Button>
+            <Flex justify="end" gap="2" mt="3" gridColumn={"span 7"}>
+              <Button onClick={() => { onOpenChange(false); onCancel();}} color="gray">Cancelar</Button>
+              <Button onClick={() => { SaleSave(GetCurrentSale()).then(() => { onSave()}); }}>Guardar</Button>
             </Flex>
           </Grid>
         </Dialog.Content>

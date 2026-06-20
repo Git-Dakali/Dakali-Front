@@ -3,14 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { LocationResponse } from './LocationResponse';
-import type { ProductColorResponse } from './ProductColorResponse';
-import type { ProductResponse } from './ProductResponse';
+import type { ProductSkuResponse } from './ProductSkuResponse';
 import type { ResponseGuid } from './ResponseGuid';
-import type { VariantResponse } from './VariantResponse';
 export type StockResponse = (ResponseGuid & {
-    product?: ProductResponse;
-    variant?: VariantResponse;
-    color?: ProductColorResponse;
+    productSku?: ProductSkuResponse;
     location?: LocationResponse;
     physical: number;
     reserved: number;

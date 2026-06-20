@@ -3,7 +3,6 @@ import { Box, Flex, Text, ScrollArea } from "@radix-ui/themes";
 import { MenuTreeRadix } from "./components/MenuTree";
 import { menuData } from "./menuData";
 import { CategoryPage } from "./pages/Category/CategoryPage";
-import { ModelPage } from "./pages/Model/ModelPage";
 import { ProductPage } from "./pages/Product/ProductPage";
 import { StockPage } from "./pages/Stock/StockPage";
 import { LocationPage } from "./pages/Location/LocationPage";
@@ -15,6 +14,7 @@ import { ProvincePage } from "./pages/GeographicLocation/Province/ProvincePage";
 import { CityPage } from "./pages/GeographicLocation/City/CityPage";
 import { CountryPage } from "./pages/GeographicLocation/Country/CountryPage";
 import { OriginSalePage } from "./pages/Sales/OriginSale/OriginSalePage";
+import { LogisticsProviderPage } from "./pages/Sales/LogisticsProviders/LogisticsProviderPage";
 import { SalePage } from "./pages/Sales/Sale/SalePage";
 import { TaxStatusPage } from "./pages/Sales/TaxStatus/TaxStatusPage";
 
@@ -25,7 +25,8 @@ import './print.css';
 import { DriverPage } from "./pages/RoadMaps/Driver/DriverPage";
 import { RoadMapPage } from "./pages/RoadMaps/RoadMap/RoadMapPage";
 import { LoadScript } from "@react-google-maps/api";
-import {config} from "./config"
+import { useConfig } from "./config/useConfig";
+import { ReturnOrderPage } from "./pages/ReturnOrders/ReturnOrderPage";
 
 type PageKey =
   | "Default"
@@ -34,7 +35,6 @@ type PageKey =
   | "Stock"
   | "Location"
   | "LocationState"
-  | "Model"
   | "Hallway"
   | "Column"
   | "Level"
@@ -44,18 +44,19 @@ type PageKey =
   | "Province"
   | "City"
   | "OriginSale"
+  | "LogisticsProvider"
   | "Driver"
-  | "RoadMap";
+  | "RoadMap"
+  | "ReturnOrder";
 
 function App() {
   const [selectedPage, setSelectedPage] = useState<PageKey>("Default");
+  const config = useConfig();
 
   const renderPage = () => {
     switch (selectedPage) {
       case "Category":
         return <CategoryPage></CategoryPage>;
-      case "Model":
-        return <ModelPage></ModelPage>;
       case "Product":
         return <ProductPage></ProductPage>;
       case "Stock":
@@ -80,12 +81,16 @@ function App() {
         return <CityPage></CityPage>;
       case "OriginSale":
         return <OriginSalePage></OriginSalePage>;
+      case "LogisticsProvider":
+        return <LogisticsProviderPage></LogisticsProviderPage>
       case "TaxStatus":
         return <TaxStatusPage></TaxStatusPage>
       case "Driver":
         return <DriverPage></DriverPage>
       case "RoadMap":
         return <RoadMapPage></RoadMapPage>
+      case "ReturnOrder":
+        return <ReturnOrderPage></ReturnOrderPage>
       default:
         return <Text>Selecciona una opción del menú.</Text>;
     }
